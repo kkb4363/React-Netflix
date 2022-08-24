@@ -1,12 +1,14 @@
-import {useParams,useLocation} from 'react-router';
+import {useParams} from 'react-router';
 import styled from 'styled-components';
-import {Outlet,Link,useMatch} from 'react-router-dom';
+import {Outlet,Link,useMatch, useLocation} from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { fetchCoinInfo, fetchCoinTickers } from '../api';
+import {Helmet} from 'react-helmet';
 
 const Title = styled.h1`
 font-size:48px;
 color:${(props)=> props.theme.accentColor};
+margin-top:20px;
 `;
 
 const Loader = styled.span`
@@ -72,6 +74,10 @@ const Tab = styled.span<{isActive:boolean}>`
   }
 `;
 
+interface RouteState {
+  name: string;
+}
+
 interface RouteParams {
   coinId: string;
  }
@@ -136,21 +142,26 @@ interface RouteParams {
       volume_24h_change_24h: number;}
   }
 }
- 
- 
+
 function Coin() {
   const { coinId } = useParams<keyof RouteParams>() as RouteParams;
-  const { state } = useLocation() as LocationParams;
   const priceMatch = useMatch('/:coinId/price');
+  const location = useLocation();
   const chartMatch = useMatch('/:coinId/chart');
-  
   const {isLoading: infoLoading, data:infoData} = useQuery<IInfoData>(['info',coinId], () => fetchCoinInfo(coinId))
-  const {isLoading: tickersLoading, data:tickersData} = useQuery<IPriceData>(['tickers',coinId], () => fetchCoinTickers(coinId))
+  const {isLoading: tickersLoading, data:tickersData} = useQuery<IPriceData>(['tickers',coinId], () => fetchCoinTickers(coinId),
+  {
+    refetchInterval:5000,
+  })
   const loading = infoLoading || tickersLoading;
-  console.log(infoData);
-  console.log(tickersData);
+  const state = location.state as RouteState;
   return (
     <Container>
+     <Helmet>
+        <title>
+          {state?.name ? state.name : loading ? "Loading..." : infoData?.name}
+        </title>
+      </Helmet>
     <Header>
       <Title>{loading ? <h1>Loading...</h1> :infoData?.name}</Title>
     </Header>
@@ -168,8 +179,8 @@ function Coin() {
             <span>${infoData?.symbol}</span>
           </OverviewItem>
           <OverviewItem>
-            <span>Open Source:</span>
-            <span>{infoData?.open_source ? "Yes" : "No"}</span>
+            <span>Price:</span>
+            <span>{tickersData?.quotes.USD.price.toFixed(2)}</span>
           </OverviewItem>
         </Overview>
         <Description>{infoData?.description}</Description>
@@ -192,8 +203,10 @@ function Coin() {
           <Link to={`/${coinId}/price`}>Price</Link>
           </Tab>
         </Tabs>
-    
-        <Outlet/>
+
+        <Outlet context={coinId}/>
+       
+      
         
       </>
       )
