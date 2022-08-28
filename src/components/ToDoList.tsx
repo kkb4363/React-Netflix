@@ -8,7 +8,13 @@ position:absolute;
 z-index:10;
 width:100%;
 height:100%;
-background:url(https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile26.uf.tistory.com%2Fimage%2F9949574E5D41B4470475E1);
+background:linear-gradient(
+  to right,
+  rgba(20, 20, 20, 0.1) 10%,
+  rgba(20, 20, 20, 0.7) 70%,
+  rgba(20, 20, 20, 1)
+),
+url(https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile26.uf.tistory.com%2Fimage%2F9949574E5D41B4470475E1);
 background-size:cover;
 opacity:0.9;
 `;

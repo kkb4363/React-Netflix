@@ -22,6 +22,7 @@
     font-size:30px;
     font-weight: 600;
     margin-left:-300px;
+    font-family: cursive;
 }
 
 .navbar_diet i{
@@ -60,6 +61,12 @@
 
 .kcaldiv{
     padding-top:110px;
+}
+
+.kcaldiv h1,
+.kcaldiv form{
+    margin-left:700px;
+    font-size:20px;
 }
 
 .Kcal_list{
