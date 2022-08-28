@@ -1,8 +1,5 @@
 import {createGlobalStyle} from 'styled-components';
-import Footer from './components/Footer';
-import Header from './components/Header';
 import ToDoList from './components/ToDoList';
-import './css/style.css';
 
 const GlobalStyle = createGlobalStyle`
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400&display=swap');
@@ -68,17 +65,11 @@ a {
   color:inherit;
 }
 `;
-
-
 function App() {
   return (
     <>
-      <Header></Header>
       <GlobalStyle/>
       <ToDoList/>
-      <Footer></Footer>
     </>
-
 )}
-
 export default App;
