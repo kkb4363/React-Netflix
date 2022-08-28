@@ -1,6 +1,17 @@
 import React from "react";
 import {useForm} from 'react-hook-form';
 import { atom, useRecoilState } from "recoil";
+import styled from "styled-components";
+
+const Background = styled.div`
+position:absolute;
+z-index:10;
+width:100%;
+height:100%;
+background:url(https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile26.uf.tistory.com%2Fimage%2F9949574E5D41B4470475E1);
+background-size:cover;
+opacity:0.9;
+`;
 
 const toDoState = atom<IToDo[]>({
   key:'toDo',
@@ -14,8 +25,6 @@ interface IForm{
 interface IToDo{
   text:string;
   id:number;
-  category:"TO_DO"|"DOING"|"DONE";
-
 }
 
 function ToDoList(){
@@ -27,26 +36,34 @@ function ToDoList(){
  } = useForm<IForm>()
 
  const handleValid = ({toDo}:IForm) => {
-    setToDos(prev => [{text:toDo , id:Date.now(), category:"TO_DO"}, ...prev])
+    setToDos(prev => [{text:toDo , id:Date.now()}, ...prev])
     setValue('toDo',"");
  }
  
     return (
-    <div>
-      <h1>To Dos</h1>
-      <hr/>
+    <Background className="kcaldiv">
+      <h1>How many calories did you eat today?</h1>
       <form onSubmit={handleSubmit(handleValid)} >
         <input {...register('toDo',
-        {
-            required:'please write a To Do',
-        })} placeholder="Write a to do"/>
+        {   
+            maxLength:4,
+            required:'please write a calories',
+        })} placeholder="pleaes write a calories"/>
         <button>Add</button>
       </form>
 
-      <ul>
-        {ToDos.map(toDo => <li key={toDo.id}>{toDo.text}</li>)}
-      </ul>
-    </div>
+    <div className="Kcal_list-github">
+      <div className="Kcal_list">
+        {ToDos.map(toDo => <div className="Kcal_list_div" key={toDo.id}>{toDo.text}kcal</div>)}
+      </div>
+      <div className="github">
+        {/* 여기에 깃허브 잔디 넣기*/}
+      </div>  
+    </div>    
+      
+
+      
+    </Background>
   );
 }
 export default ToDoList;
