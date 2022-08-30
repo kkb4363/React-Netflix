@@ -65,14 +65,11 @@ a {
   color:inherit;
 }
 `;
-
 function App() {
   return (
     <>
       <GlobalStyle/>
       <ToDoList/>
     </>
-
 )}
-
 export default App;

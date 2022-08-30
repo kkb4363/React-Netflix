@@ -5,7 +5,9 @@ import ToDo from "./ToDo";
 
 
 function ToDoList(){
+
   const ToDos = useRecoilValue(toDoState);
+
     return (
     <div>
       <h1>To Dos</h1>
@@ -18,4 +20,4 @@ function ToDoList(){
     </div>
   );
 }
-export default ToDoList;
+export default ToDoList; 
