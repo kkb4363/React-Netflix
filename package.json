@@ -15,6 +15,7 @@
     "query": "^0.2.0",
     "react": "^18.0.2",
     "react-apexcharts": "^1.4.0",
+    "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.0.2",
     "react-helmet": "^6.1.0",
     "react-hook-form": "^7.34.2",
@@ -52,6 +53,7 @@
   },
   "devDependencies": {
     "@tanstack/react-query-devtools": "^4.2.1",
+    "@types/react-beautiful-dnd": "^13.1.2",
     "@types/react-helmet": "^6.1.5",
     "@types/react-query": "^1.2.9",
     "@types/styled-components": "^5.1.26"
