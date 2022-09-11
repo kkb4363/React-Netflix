@@ -16,3 +16,17 @@ export const hourSelector = selector<number>({
      set(minuteState, minutes);
   }
 })
+
+interface IToDoState {
+  [key:string]:string[];
+}
+
+export const toDoState = atom<IToDoState>({
+  key:'toDo',
+  default: {
+    to_do:['a','d','f'],
+    doing:['b','c',],
+    done:['e',],
+  },
+});
+
