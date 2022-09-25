@@ -1,59 +1,19 @@
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
-import { useRecoilState } from "recoil";
-import styled from "styled-components";
-import { toDoState } from "./components/atoms";
-import Board from "./components/Board";
-
-const Wrapper = styled.div`
-  display: flex;
-  max-width: 680px;
-  width: 100%;
-  width: 100vw;
-  margin: 0 auto;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-`;
-
-const Boards = styled.div`
-  
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  width: 100%;
-  gap: 10px;
-  
-`;
-
-function App() {
-  const [toDos, setToDos] = useRecoilState(toDoState);
-  
-  const onDragEnd = (info: DropResult) => {
-    console.log(info);
-    const { destination, draggableId, source } = info;
-    if (destination?.droppableId === source.droppableId) {
-      // same board movement.
-      setToDos((allBoards) => {
-        const boardCopy = [...allBoards[source.droppableId]];
-        boardCopy.splice(source.index, 1);
-        boardCopy.splice(destination?.index, 0, draggableId);
-        return {
-          ...allBoards,
-          [source.droppableId]: boardCopy,
-        };
-      });
-    }
-  };
+import {BrowserRouter as Router , Routes, Route} from 'react-router-dom';
+import Home from './Routes/Home';
+import Tv from './Routes/Tv';
+import Search from './Routes/Search';
+import Header from './Components/Header';
+function App(){
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <Wrapper>
-        <Boards>
-          {Object.keys(toDos).map((boardId) => (
-            <Board boardId={boardId} key={boardId} toDos={toDos[boardId]} />
-          ))}
-        </Boards>
-      </Wrapper>
-    </DragDropContext>
-  );
+    <Router>
+      <Header/>
+      <Routes>
+        <Route path="/tv" element={<Tv/>}></Route>
+        <Route path="/search" element={<Search/>}></Route>
+        <Route path="/" element={<Home/>}></Route>
+      </Routes>
+    </Router>
+  )
 }
+
 export default App;
