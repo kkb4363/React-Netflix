@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { RecoilRoot } from "recoil";
 import { ThemeProvider } from "styled-components";
 import App from "./App";
-
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import { createGlobalStyle } from "styled-components";
 import { theme } from "./theme";
 
@@ -71,13 +71,18 @@ a {
   color:inherit;
 }
 `;
+
+const client = new QueryClient();
+
 ReactDOM.render(
   <React.StrictMode>
     <RecoilRoot>
+      <QueryClientProvider client={client}>
       <ThemeProvider theme={theme}>
         <GlobalStyle />
         <App />
       </ThemeProvider>
+      </QueryClientProvider>
     </RecoilRoot>
   </React.StrictMode>,
   document.getElementById("root")
