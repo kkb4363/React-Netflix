@@ -1,15 +1,59 @@
 import { useQuery } from "@tanstack/react-query";
-import { getMovies } from "../api";
+import { getMovies, IGetMoviesResult } from "../api";
+import styled from 'styled-components';
+import { makeImagePath } from "../utils";
+
+const Wrapper = styled.div`
+background:black;
+`
+
+const Loader = styled.div`
+height:20vh;
+display:flex;
+justify-content:center;
+align-items:center;
+`
+
+const Banner = styled.div<{bgPhoto:string}>`
+height:100vh;
+display:flex;
+flex-direction:column;
+justify-contents:center;
+padding:60px;
+background-image: linear-gradient(rgba(0,0,0,1), rgba(0,0,0,0)) , url(${props => props.bgPhoto});
+background-size:cover;
+`
+
+const Title = styled.h2`
+font-size:68px;
+margin-bottom:20px;
+`
+
+const Overview = styled.p`
+font-size:30px;
+width:50%;
+
+`
 
 function Home(){
   {/* useQuery([식별자이름,식별자이름],불러올 함수)
   fetch 해온 데이터를 가져와서 데이터가 있는지 , 아직 로딩중인지에 대한 알림을
   전해주는 함수이다.
 */}
-  const {data, isLoading} = useQuery(['movies', 'nowPlaying'], getMovies)
-  console.log(data,isLoading);  
+  const {data, isLoading} = useQuery<IGetMoviesResult>(
+    ['movies', 'nowPlaying'],
+    getMovies);
+  
   return (
-        <div style={{ backgroundColor: "whitesmoke", height: "200vh" }}></div>
+        <Wrapper>
+          {isLoading ? <Loader>Loading...</Loader> 
+          : <>
+          <Banner bgPhoto={makeImagePath(data?.results[0].backdrop_path || "")}>
+            <Title>{data?.results[0].title}</Title>
+            <Overview>{data?.results[0].overview}</Overview>
+          </Banner>
+          </> }
+          </Wrapper>
       );
 }
 export default Home;
