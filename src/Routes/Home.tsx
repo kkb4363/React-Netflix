@@ -57,7 +57,28 @@ height:200px;
 background-image:url(${props => props.bgPhoto});
 background-size:cover;
 background-position:center center;
+font-size:66px;
+position:relative;
+&:first-child{
+  transform-origin:center left;
+}
+&:last-child{
+  transform-origin:center right;
+}
 `
+
+const Info = styled(motion.div)`
+  padding: 10px;
+  background-color: ${(props) => props.theme.black.lighter};
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  h4 {
+    text-align: center;
+    font-size: 18px;
+  }
+`;
 
 {/*사용자 화면의 가로길이 확인하는 방법 
 개발자도구 콘솔에 window.innerWidth , window.outerWidth 둘 중 하나 사용
@@ -79,6 +100,31 @@ pagination 구글링 하거나 노마드코더 영상 #8.8 7분30초부터 보�
 */}
 const offset = 6;
 
+const boxVariants = {
+  normal: {
+    scale: 1,
+  },
+  hover: {
+    scale: 1.3,
+    y: -80,
+    transition: {
+      delay: 0.5,
+      duaration: 0.1,
+      type: "tween",
+    },
+  },
+};
+
+const infoVariants = {
+  hover: {
+    opacity: 1,
+    transition: {
+      delay: 0.5,
+      duaration: 0.1,
+      type: "tween",
+    },
+  },
+};
 
 function Home(){
   {/* useQuery([식별자이름,식별자이름],불러올 함수)
@@ -130,8 +176,22 @@ function Home(){
               메인페이지에 사용한 data[0]번의 영화를 제외하기위해서*/}
               {data?.results.slice(1).slice(offset*index, offset*index+offset)
               .map((movie) => (
-                <Box key={movie.id} bgPhoto={makeImagePath(movie.backdrop_path, 'w400'  || "")}></Box>
-              ))} {/*bgPhoto가 타입스크립트에 정의되어있지 않아서 에러가뜸
+                <Box 
+                variants={boxVariants}
+                key={movie.id} 
+                whileHover='hover'
+                initial='normal'
+                transition={{type:'tween'}}
+                bgPhoto={makeImagePath(movie.backdrop_path, 'w400'  || "")}
+                >
+                <Info variants={infoVariants}>
+                <h4>{movie.title}</h4>
+                </Info>
+                </Box>
+              ))} 
+              
+              
+              {/*bgPhoto가 타입스크립트에 정의되어있지 않아서 에러가뜸
                   그럴땐 위로 올려서 box에 정의해주면 됌.*/}
             </Row>
             </AnimatePresence>
