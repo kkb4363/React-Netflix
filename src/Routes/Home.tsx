@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { getMovies, IGetMoviesResult } from "../api";
+import { getMovies,  IGetMoviesResult } from "../api";
 import styled from 'styled-components';
 import { makeImagePath } from "../utils";
 import {motion, AnimatePresence,useScroll} from 'framer-motion';
 import { useState } from "react";
 import {useNavigate, useMatch, PathMatch} from 'react-router-dom';
+import { PopularMovieSlider } from "../Slider/PopularMovies";
+
 
 const Wrapper = styled.div`
 background:black;
@@ -133,7 +135,7 @@ const Overlay = styled(motion.div)`
 position:absolute;
 top:0;
 width:100%;
-height:100%;
+height:200%;
 background-color:rgba(0,0,0,0.5);
 opacity:0;
 `
@@ -170,6 +172,26 @@ margin-top:-80px;
 color:${props => props.theme.white.lighter};
 `
 
+const BTN = styled.button`
+position:absolute;
+width:70px;
+height:70px;
+border-radius:35px;
+background-color:tomato;
+right:0;
+top:65px;
+`
+
+const SliderText = styled.div`
+left:0;
+position:absolute;
+font-size:35px;
+width:300px;
+height:200px;
+top:-50px;
+font-weight:400;
+`
+
 function Home(){
   {/* useQuery([식별자이름,식별자이름],불러올 함수)
   fetch 해온 데이터를 가져와서 데이터가 있는지 , 아직 로딩중인지에 대한 알림을
@@ -198,18 +220,19 @@ function Home(){
   };
   const onOverlayClick = () => navigate('/');
   const clickedMovie = moviePathMatch?.params.movieId && data?.results.find(movie => movie.id+'' === moviePathMatch.params.movieId)
-  console.log(clickedMovie);
+  
   return (
         <Wrapper>
           {isLoading ? <Loader>Loading...</Loader> 
           : <>
           <Banner
-          onClick={increaseIndex}
           bgPhoto={makeImagePath(data?.results[0].backdrop_path || "")}>
             <Title>{data?.results[0].title}</Title>
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
+
           <Slider>
+            <SliderText>Now Playing Movies</SliderText>
             {/*initial={false}를 해주는 이유
             새로고침을 하거나 다른 페이지에서 넘어올때
             박스들이 오른쪽에서 슬라이딩하면서 넘어온다.
@@ -247,8 +270,11 @@ function Home(){
               {/*bgPhoto가 타입스크립트에 정의되어있지 않아서 에러가뜸
                   그럴땐 위로 올려서 box에 정의해주면 됌.*/}
             </Row>
+            <BTN onClick={increaseIndex}>Next</BTN>
             </AnimatePresence>
           </Slider>
+          <PopularMovieSlider/>
+
           <AnimatePresence>
             {moviePathMatch ? 
             <>
