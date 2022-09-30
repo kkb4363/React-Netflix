@@ -172,7 +172,17 @@ margin-top:-80px;
 color:${props => props.theme.white.lighter};
 `
 
-const BTN = styled.button`
+const PREV = styled.button`
+position:absolute;
+width:70px;
+height:70px;
+border-radius:35px;
+background-color:tomato;
+left:0;
+top:65px;
+`
+
+const Next = styled.button`
 position:absolute;
 width:70px;
 height:70px;
@@ -213,6 +223,17 @@ function Home(){
     setIndex((prev) => prev === maxIndex ? 0 : prev + 1); 
     }
   };
+  const decreaseIndex = () => {
+    if(data){
+      if(leaving) return;
+    toggleLeaving();
+    const totalMovies2 = data.results.length -1;
+    const maxIndex2 = Math.floor(totalMovies2/offset) -1;
+    setIndex((prev) => prev === 0 ? 2 : prev -1);
+    }
+  }
+
+
   const toggleLeaving = () => setLeaving(prev => !prev);
   const [leaving, setLeaving] = useState(false);
   const onBoxClicked = (movieId:number) => {
@@ -233,10 +254,7 @@ function Home(){
 
           <Slider>
             <SliderText>Now Playing Movies</SliderText>
-            {/*initial={false}를 해주는 이유
-            새로고침을 하거나 다른 페이지에서 넘어올때
-            박스들이 오른쪽에서 슬라이딩하면서 넘어온다.
-            그래서 그걸 방지하기 위해 해줌.*/}
+          
             <AnimatePresence 
             initial={false}
             onExitComplete={toggleLeaving}>
@@ -248,8 +266,7 @@ function Home(){
               transition={{type:"tween", duration:1}}
               key={index}
             >
-              {/* slice(1)을 하는 이유
-              메인페이지에 사용한 data[0]번의 영화를 제외하기위해서*/}
+              
               {data?.results.slice(1).slice(offset*index, offset*index+offset)
               .map((movie) => (
                 <Box
@@ -267,14 +284,16 @@ function Home(){
                 </Info>
                 </Box>
               ))} 
-              {/*bgPhoto가 타입스크립트에 정의되어있지 않아서 에러가뜸
-                  그럴땐 위로 올려서 box에 정의해주면 됌.*/}
             </Row>
-            <BTN onClick={increaseIndex}>Next</BTN>
+            <PREV onClick={decreaseIndex}>Prev</PREV>
+            <Next onClick={increaseIndex}>Next</Next>
             </AnimatePresence>
           </Slider>
-          <PopularMovieSlider/>
 
+          <PopularMovieSlider/>
+          
+          
+          
           <AnimatePresence>
             {moviePathMatch ? 
             <>
@@ -288,6 +307,7 @@ function Home(){
               layoutId={moviePathMatch.params.movieId}
               style={{top:scrollY.get() + 100}
             }>
+
             {clickedMovie && 
             <>
             <BigCover 
@@ -297,10 +317,12 @@ function Home(){
             <BigTitle>{clickedMovie.title}</BigTitle>
             <BigOverView>{clickedMovie.overview}</BigOverView>
             </>}
+
             </BigMovie>
             </>
               : null}
           </AnimatePresence>
+        
           </> }
           </Wrapper>
       );
@@ -326,3 +348,14 @@ https://developers.themoviedb.org/3/getting-started/introduction
   
   2. useRouteMatch() => useMatch()
 */}
+
+{/*bgPhoto가 타입스크립트에 정의되어있지 않아서 에러가뜸
+  그럴땐 위로 올려서 box에 정의해주면 됌.*/}
+
+{/* slice(1)을 하는 이유
+메인페이지에 사용한 data[0]번의 영화를 제외하기위해서*/}
+
+{/*initial={false}를 해주는 이유
+새로고침을 하거나 다른 페이지에서 넘어올때
+박스들이 오른쪽에서 슬라이딩하면서 넘어온다.
+그래서 그걸 방지하기 위해 해줌.*/}

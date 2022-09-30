@@ -63,7 +63,7 @@ cursor:pointer;
 }
 `
 
-const boxVariants = {
+const boxVariants1 = {
     normal:{
         scale:1,
     },
@@ -117,13 +117,13 @@ const {data} = useQuery<IGetMoviesResult>(
     ['movies', 'popular'],
     getPopularMovies
 );
-const [leaving2,setLeaving] = useState(false);
+const [leaving,setLeaving] = useState(false);
 const toggleLeaving = () => setLeaving(prev => !prev);
 
-const [index,setIndex] = useState(0);
+const [index1,setIndex] = useState(0);
 const increaseIndex = () => {
     if(data){
-        if(leaving2) return;
+        if(leaving) return;
     toggleLeaving();
     const totalMovies = data.results.length-2;
     console.log(totalMovies);
@@ -149,12 +149,13 @@ return(
             animate='visible'
             exit='exit'
             transition={{type:'tween', duration:1}}
-            key={index}>
-                {data?.results.slice(2).slice(offset*index, offset*index+offset)
+            key={index1}
+            >
+                {data?.results.slice(2).slice(offset*index1, offset*index1+offset)
                 .map((movie) => (
                     <Box
                     layoutId={movie.id+''}
-                    variants={boxVariants}
+                    variants={boxVariants1}
                     key={movie.id}
                     whileHover='hover'
                     initial='normal'

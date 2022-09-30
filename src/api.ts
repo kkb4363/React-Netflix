@@ -1,4 +1,3 @@
-import ApexCharts from "apexcharts";
 
 const API_KEY = '505148347d18c10aeac2faa958dbbf5c';
 const BASE_PATH = 'https://api.themoviedb.org/3';
