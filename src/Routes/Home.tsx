@@ -229,7 +229,7 @@ function Home(){
     const onOverlayClick = () => navigate('/');
     const clickedMovie = moviePathMatch?.params.movieId && nowLoading?.results.find(movie => movie.id+'' === moviePathMatch.params.movieId)
     const clickedMovie2 = moviePathMatch?.params.movieId && popular?.results.find(movie => movie.id+'' === moviePathMatch.params.movieId)
-    
+    console.log(moviePathMatch);
     const onBoxClicked = (movieId:number) => {
       navigate(`/movies/${movieId}`);
     };

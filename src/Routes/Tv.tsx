@@ -228,8 +228,9 @@ function Tv(){
     const [back2, setback2] = useState(false);
     const [index, setIndex] = useState(0);
     const [index2, setIndex2] = useState(0);
-    const toggleLeaving = () => setLeaving(prev => !prev);
     const [leaving, setLeaving] = useState(false);
+    const toggleLeaving = () => setLeaving(prev => !prev);
+    
 
     const PoPrevBtn = () => {
         if(Popular){

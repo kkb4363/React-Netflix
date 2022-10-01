@@ -1,4 +1,4 @@
-
+import { useLocation, useNavigate, PathMatch, useMatch } from "react-router-dom";
 const API_KEY = '505148347d18c10aeac2faa958dbbf5c';
 const BASE_PATH = 'https://api.themoviedb.org/3';
 
@@ -61,7 +61,6 @@ export function getMovies(){
     .then((response) => response.json()
     );
 }
-
 export function getPopularMovies(){
     return fetch(`${BASE_PATH}/movie/upcoming?api_key=${API_KEY}`)
     .then((response) => response.json()
@@ -72,13 +71,14 @@ export function getPopularTv(){
     return fetch(`${BASE_PATH}/tv/top_rated?api_key=${API_KEY}`)
     .then((response) => response.json());
 }
-
 export function getAiringTv(){
     return fetch(`${BASE_PATH}/tv/airing_today?api_key=${API_KEY}`)
     .then((response)=> response.json());
 }
 
-export function getSearch(){
-    return fetch(`${BASE_PATH}/search/movie?api_key=${API_KEY}`)
+export function GetSearch(){
+    const location = useLocation()
+   const keyword = new URLSearchParams(location.search).get('keyword');
+    return fetch(`${BASE_PATH}/search/multi?api_key=${API_KEY}&query=${keyword}`)
     .then((Response) => Response.json()); 
 }
