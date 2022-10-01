@@ -170,7 +170,7 @@ const Info = styled(motion.div)`
 `
 const rowVariants = {
   hidden : (custom:boolean) => ({
-    x: custom? window.outerWidth +5 : -window.outerWidth -5 ,
+    x: custom? window.outerWidth +5 : -window.outerWidth -5,
   }),
   visible: {
     x:0,
@@ -305,7 +305,7 @@ function Home(){
               initial='hidden' 
               animate='visible' 
               exit='exit'
-              transition={{type:"tween", duration:1}}
+              transition={{type:"tween", duration:0.5}}
               key={index}
             >
               {nowLoading?.results.slice(1).slice(offset*index, offset*index+offset)
@@ -343,7 +343,7 @@ function Home(){
               initial='hidden' 
               animate='visible' 
               exit='exit'
-              transition={{type:"tween", duration:1}}
+              transition={{type:"tween", duration:0.5}}
               key={index2}
             >
               {popular?.results.slice(2).slice(offset*index2, offset*index2+offset)

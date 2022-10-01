@@ -21,6 +21,15 @@ interface ITV{
     first_air_date:string;
 }
 
+interface ISearch{
+    id:number;
+    poster_path:string;
+    title:string;
+    backdrop_path:string;
+    overview:string;
+    release_date:string;
+    vote_count:number;
+}
 
 export interface IGetMoviesResult {
     dates:{
@@ -38,6 +47,13 @@ export interface IGetTvResult {
     results:ITV[];
     total_results:number;
     total_pages:number;
+}
+
+export interface IGetSearch{
+    page:number,
+    results:ISearch[];
+    total_pages:number,
+    total_results:number,
 }
 
 export function getMovies(){
@@ -60,4 +76,9 @@ export function getPopularTv(){
 export function getAiringTv(){
     return fetch(`${BASE_PATH}/tv/airing_today?api_key=${API_KEY}`)
     .then((response)=> response.json());
+}
+
+export function getSearch(){
+    return fetch(`${BASE_PATH}/search/movie?api_key=${API_KEY}`)
+    .then((Response) => Response.json()); 
 }

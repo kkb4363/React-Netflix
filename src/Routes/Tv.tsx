@@ -295,7 +295,7 @@ function Tv(){
                 initial='hidden'
                 animate='visible'
                 exit='exit'
-                transition={{type:'tween', duration:1}}
+                transition={{type:'tween', duration:0.5}}
                 key={index}>
                     {Popular?.results.slice(2).slice(offset*index, offset*index+offset)
                     .map((tv) => (
@@ -332,7 +332,7 @@ function Tv(){
                 initial='hidden'
                 animate='visible'
                 exit='exit'
-                transition={{type:'tween', duration:1}}
+                transition={{type:'tween', duration:0.5}}
                 key={index2}>
                     {Airing?.results.slice(2).slice(offset*index2, offset*index2+offset)
                     .map((tv) => (
