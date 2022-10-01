@@ -21,6 +21,9 @@ export interface IGetMoviesResult {
     total_results: number;
 }
 
+export interface IGetTvResult {
+    
+}
 
 export function getMovies(){
     return fetch(`${BASE_PATH}/movie/now_playing?api_key=${API_KEY}`)
@@ -32,4 +35,9 @@ export function getPopularMovies(){
     return fetch(`${BASE_PATH}/movie/upcoming?api_key=${API_KEY}`)
     .then((response) => response.json()
     );
+}
+
+export function getLatestTv(){
+    return fetch(`${BASE_PATH}/tv/latest?api_key=${API_KEY}`)
+    .then((response) => response.json());
 }
