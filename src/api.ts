@@ -8,7 +8,19 @@ interface IMovie{
     poster_path:string;
     title:string;
     overview:string;
+    vote_count:number;
+    release_date:string;
 }
+
+interface ITV{
+    id:number;
+    overview:string;
+    backdrop_path:string;
+    name:string;
+    vote_count:number;
+    first_air_date:string;
+}
+
 
 export interface IGetMoviesResult {
     dates:{
@@ -22,7 +34,10 @@ export interface IGetMoviesResult {
 }
 
 export interface IGetTvResult {
-    
+    page:number,
+    results:ITV[];
+    total_results:number;
+    total_pages:number;
 }
 
 export function getMovies(){
@@ -37,7 +52,12 @@ export function getPopularMovies(){
     );
 }
 
-export function getLatestTv(){
-    return fetch(`${BASE_PATH}/tv/latest?api_key=${API_KEY}`)
+export function getPopularTv(){
+    return fetch(`${BASE_PATH}/tv/top_rated?api_key=${API_KEY}`)
     .then((response) => response.json());
+}
+
+export function getAiringTv(){
+    return fetch(`${BASE_PATH}/tv/airing_today?api_key=${API_KEY}`)
+    .then((response)=> response.json());
 }
