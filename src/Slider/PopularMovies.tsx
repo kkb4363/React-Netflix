@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getMovies,  getPopularMovies,  IGetMoviesResult } from "../api";
+import {  getPopularMovies,  IGetMoviesResult } from "../api";
 import styled from 'styled-components';
 import { makeImagePath } from "../utils";
 import {motion, AnimatePresence,useScroll} from 'framer-motion';
@@ -63,7 +63,7 @@ cursor:pointer;
 }
 `
 
-const boxVariants1 = {
+const boxVariants = {
     normal:{
         scale:1,
     },
@@ -164,30 +164,26 @@ margin-top:-80px;
 color:${props => props.theme.white.lighter};
 `
 
-const boxVariants = {
-    normal: {
-      scale: 1,
-    },
-    hover: {
-      zIndex:999,
-      scale: 1.3,
-      y: -80,
-      transition: {
-        delay: 0.5,
-        duaration: 0.1,
-        type: "tween",
-      },
-    },
-  };
-
 export function PopularMovieSlider(){
 const {data} = useQuery<IGetMoviesResult>(
         ['movie', 'popular'],
         getPopularMovies);
-const moviePathMatch:PathMatch<string>|null = useMatch('/movies/:movieId');
+const navigate = useNavigate();
+const {scrollY} = useScroll();
+const [index, setIndex] = useState(0);
+const moviePathMatch1:PathMatch<string>|null = useMatch('/movies/:movieId');
 const onOverlayClick = () => navigate('/');
-const clickedMovie = moviePathMatch?.params.movieId && data?.results.find(movie => movie.id+'' === moviePathMatch.params.movieId)
-const PrevBtn = () => {
+const clickedMovie1 = moviePathMatch1?.params.movieId && data?.results.find(movie => movie.id+'' === moviePathMatch1.params.movieId)
+const [back, setback] = useState(false);
+const toggleLeaving = () => setLeaving(prev => !prev);
+const [leaving, setLeaving] = useState(false);
+console.log(moviePathMatch1);
+console.log(clickedMovie1);
+  const onBoxClicked = (movieId:number) => {
+    navigate(`/movies/${movieId}`);
+  };
+  
+  const PrevBtn = () => {
     if(data){
       if(leaving) return;
     toggleLeaving();
@@ -198,17 +194,6 @@ const PrevBtn = () => {
     }
   }
 
-  const [back, setback] = useState(false);
-
-  const toggleLeaving = () => setLeaving(prev => !prev);
-  const [leaving, setLeaving] = useState(false);
-
-  
-  const onBoxClicked = (movieId:number) => {
-    navigate(`/movies/${movieId}`);
-  };
-  const [index, setIndex] = useState(0);
-  
   const NextBtn = () => {
     if(data){
       if(leaving) return;
@@ -219,9 +204,9 @@ const PrevBtn = () => {
     setback(true);
     }
   };
-  const navigate = useNavigate();
   
-  const {scrollY} = useScroll();
+  
+  
     return(
         <>
         <Slider>
@@ -236,10 +221,10 @@ const PrevBtn = () => {
               initial='hidden' 
               animate='visible' 
               exit='exit'
-              transition={{type:"tween", duration:1.5}}
+              transition={{type:"tween", duration:1}}
               key={index}
             >
-              {data?.results.slice(1).slice(offset*index, offset*index+offset)
+              {data?.results.slice(2).slice(offset*index, offset*index+offset)
               .map((movie) => (
                 <Box
                 layoutId={movie.id+''}
@@ -261,8 +246,9 @@ const PrevBtn = () => {
             <Next onClick={NextBtn}><BsFillArrowRightCircleFill/></Next>
             </AnimatePresence>
           </Slider>
+
           <AnimatePresence>
-            {moviePathMatch ? 
+            {moviePathMatch1 ? 
             <>
             <Overlay 
             onClick={onOverlayClick}
@@ -271,18 +257,19 @@ const PrevBtn = () => {
             />
             
             <BigMovie
-              layoutId={moviePathMatch.params.movieId}
+              layoutId={moviePathMatch1.params.movieId}
               style={{top:scrollY.get() + 100}
             }>
 
-            {clickedMovie && 
+            {clickedMovie1 && 
             <>
             <BigCover 
+            
             style={{
-              backgroundImage:`url(${makeImagePath(clickedMovie.backdrop_path, 'w500')})`
+              backgroundImage:`url(${makeImagePath(clickedMovie1.backdrop_path, 'w500')})`
               }}/>
-            <BigTitle>{clickedMovie.title}</BigTitle>
-            <BigOverView>{clickedMovie.overview}</BigOverView>
+            <BigTitle>{clickedMovie1.title}</BigTitle>
+            <BigOverView>{clickedMovie1.overview}</BigOverView>
             </>}
 
             </BigMovie>

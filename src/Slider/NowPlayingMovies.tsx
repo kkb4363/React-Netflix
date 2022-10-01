@@ -177,6 +177,14 @@ const {data} = useQuery<IGetMoviesResult>(
 const moviePathMatch:PathMatch<string>|null = useMatch('/movies/:movieId');
 const onOverlayClick = () => navigate('/');
 const clickedMovie = moviePathMatch?.params.movieId && data?.results.find(movie => movie.id+'' === moviePathMatch.params.movieId)
+const onBoxClicked = (movieId:number) => {
+  navigate(`/movies/${movieId}`);
+};
+const [back, setback] = useState(false);
+const toggleLeaving = () => setLeaving(prev => !prev);
+const [leaving, setLeaving] = useState(false);
+const [index, setIndex] = useState(0);
+
 const PrevBtn = () => {
     if(data){
       if(leaving) return;
@@ -188,17 +196,6 @@ const PrevBtn = () => {
     }
   }
 
-  const [back, setback] = useState(false);
-
-  const toggleLeaving = () => setLeaving(prev => !prev);
-  const [leaving, setLeaving] = useState(false);
-
-  
-  const onBoxClicked = (movieId:number) => {
-    navigate(`/movies/${movieId}`);
-  };
-  const [index, setIndex] = useState(0);
-  
   const NextBtn = () => {
     if(data){
       if(leaving) return;
@@ -226,7 +223,7 @@ const PrevBtn = () => {
               initial='hidden' 
               animate='visible' 
               exit='exit'
-              transition={{type:"tween", duration:1.5}}
+              transition={{type:"tween", duration:1}}
               key={index}
             >
               {data?.results.slice(1).slice(offset*index, offset*index+offset)

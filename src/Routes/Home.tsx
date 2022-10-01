@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getMovies,  IGetMoviesResult } from "../api";
+import { getMovies,  getPopularMovies,  IGetMoviesResult } from "../api";
 import styled from 'styled-components';
 import { makeImagePath } from "../utils";
 import { PopularMovieSlider } from "../Slider/PopularMovies";
@@ -43,7 +43,7 @@ function Home(){
   const {data, isLoading} = useQuery<IGetMoviesResult>(
     ['movies', 'nowPlaying'],
     getMovies);
-  
+
   return (
         <Wrapper>
           {isLoading ? <Loader>Loading...</Loader> 
@@ -53,7 +53,6 @@ function Home(){
             <Title>{data?.results[0].title}</Title>
             <Overview>{data?.results[0].overview}</Overview>
           </Banner>
-
           <PopularMovieSlider/>
           <NowPlayingSlider/>
           
