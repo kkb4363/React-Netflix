@@ -7,6 +7,11 @@ interface MGen{
     name:string;
 }
 
+interface TGen{
+    id:number;
+    name:string;
+}
+
 interface IMovie{
     id:number;
     backdrop_path: string;
@@ -67,6 +72,10 @@ export interface IMovieGenres{
     genres:MGen[];
 }
 
+export interface ITVGenres{
+    genres:MGen[];
+}
+
 export function getMovies(){
     return fetch(`${BASE_PATH}/movie/now_playing?api_key=${API_KEY}&language=ko-KR`)
     .then((response) => response.json()
@@ -81,6 +90,10 @@ export function getMgenres(){
     return fetch(`${BASE_PATH}/genre/movie/list?api_key=${API_KEY}&language=ko-KR`)
     .then((response) => response.json());
 }
+export function getTVgenres(){
+    return fetch(`${BASE_PATH}/genre/tv/list?api_key=${API_KEY}&language=ko-KR`)
+    .then((response) => response.json());
+}
 
 
 export function getPopularTv(){
@@ -91,7 +104,6 @@ export function getAiringTv(){
     return fetch(`${BASE_PATH}/tv/airing_today?api_key=${API_KEY}&language=ko-KR`)
     .then((response)=> response.json());
 }
-
 export function GetSearch(){
     const location = useLocation()
    const keyword = new URLSearchParams(location.search).get('keyword');

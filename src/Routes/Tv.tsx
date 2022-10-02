@@ -2,11 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { PathMatch, useMatch, useNavigate } from "react-router-dom";
 import { getPopularTv, IGetTvResult,getAiringTv } from "../api";
 import {motion, AnimatePresence,useScroll} from 'framer-motion';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styled from 'styled-components';
 import { makeImagePath } from "../utils";
 import { BsFillArrowRightCircleFill , BsFillArrowLeftCircleFill, BsFillPlayCircleFill} from "react-icons/bs";
 const offset = 6;
+const API_KEY = '505148347d18c10aeac2faa958dbbf5c';
+const BASE_PATH = 'https://api.themoviedb.org/3';
 const Wrapper = styled.div`
 background:black;
 `
@@ -149,9 +151,13 @@ background-position:center center;
 `
 const BigTitle = styled.h3`
 color:${props => props.theme.white.lighter};
-font-size:35px;
+font-size:45px;
 position:relative;
-top:-25px;
+display:flex;
+justify-content:center;
+align-items:center;
+top:-250px;
+font-family:cursive;
 padding:20px;
 `
 const BigGen = styled.h4`
@@ -177,7 +183,8 @@ div{
 `
 const BigOverView = styled.p`
 padding:20px;
-margin-top:-50px;
+margin-top:-150px;
+font-family:fantasy;
 color:${props => props.theme.white.lighter};
 `
 const BigScore = styled.div`
@@ -224,6 +231,15 @@ color:white;
 `
 
 function Tv(){
+    const [gen,setgen] =useState<any[]>([]);
+    useEffect(()=>{
+        fetch(`${BASE_PATH}/genre/tv/list?api_key=${API_KEY}&language=ko-KR`)
+        .then((res)=>res.json())
+        .then((json)=>{
+            setgen(json.genres);
+        })
+    },[])
+
     const {data:Popular , isLoading} = useQuery<IGetTvResult>(
         ['TV','popular'],
         getPopularTv
@@ -395,7 +411,16 @@ function Tv(){
                 <BigCover
                 style={{backgroundImage:`url(${makeImagePath(clickTv.backdrop_path, 'w500')})`}}/>
                 <BigTitle>{clickTv.name}</BigTitle>
-               
+                <BigGen>
+              {clickTv.genre_ids.map((g) => (
+                gen.map((v)=>(
+                  v.id === g ? (
+                    <div>{v.name}</div>
+                    
+                  ): null
+                )) 
+              ))}
+            </BigGen>
                 <BigOverView>{clickTv.overview}</BigOverView>
                 <BigScore>{clickTv.vote_count}</BigScore>
                 <BigReleaseDate>{clickTv.first_air_date}</BigReleaseDate>
@@ -407,6 +432,16 @@ function Tv(){
                 <BigCover
                 style={{backgroundImage:`url(${makeImagePath(clickTv2.backdrop_path, 'w500')})`}}/>
                 <BigTitle>{clickTv2.name}</BigTitle>
+                <BigGen>
+              {clickTv2.genre_ids.map((g) => (
+                gen.map((v)=>(
+                  v.id === g ? (
+                    <div>{v.name}</div>
+                    
+                  ): null
+                )) 
+              ))}
+            </BigGen>
                 <BigOverView>{clickTv2.overview}</BigOverView>
                 <BigScore>{clickTv2.vote_count}</BigScore>
                 <BigReleaseDate>{clickTv2.first_air_date}</BigReleaseDate>
