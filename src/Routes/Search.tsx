@@ -1,10 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
 import { useLocation, useNavigate, PathMatch, useMatch, Navigate } from "react-router-dom";
-import { GetSearch, IGetSearch } from "../api";
 import styled from 'styled-components';
 import { AnimatePresence, useScroll ,motion} from "framer-motion";
 import { useEffect, useState } from "react";
-import { setEnvironmentData } from "worker_threads";
 import { makeImagePath } from "../utils";
 import { BsFillPlayCircleFill,BsFillArrowLeftCircleFill, BsFillArrowRightCircleFill } from "react-icons/bs";
 

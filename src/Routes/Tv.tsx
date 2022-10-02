@@ -154,6 +154,27 @@ position:relative;
 top:-25px;
 padding:20px;
 `
+const BigGen = styled.h4`
+color:${props => props.theme.white.lighter};
+font-size:20px;
+position:relative;
+display:flex;
+align-items:center;
+justify-content:center;
+top:-250px;
+font-family:cursive;
+div{
+  margin:0 5px;
+  width:120px;
+  height:50px;
+  border-radius:20px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background-color:rgba(0,0,0,0.2);
+}
+
+`
 const BigOverView = styled.p`
 padding:20px;
 margin-top:-50px;
@@ -374,6 +395,7 @@ function Tv(){
                 <BigCover
                 style={{backgroundImage:`url(${makeImagePath(clickTv.backdrop_path, 'w500')})`}}/>
                 <BigTitle>{clickTv.name}</BigTitle>
+               
                 <BigOverView>{clickTv.overview}</BigOverView>
                 <BigScore>{clickTv.vote_count}</BigScore>
                 <BigReleaseDate>{clickTv.first_air_date}</BigReleaseDate>

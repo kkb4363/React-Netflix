@@ -1,23 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
-import { getMovies,  getPopularMovies,  IGetMoviesResult } from "../api";
+import { getMgenres, getMovies,  getPopularMovies,  IGetMoviesResult, IMovieGenres } from "../api";
 import styled from 'styled-components';
 import { makeImagePath } from "../utils";
 import {motion, AnimatePresence,useScroll} from 'framer-motion';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {useNavigate, useMatch, PathMatch} from 'react-router-dom';
 import { BsFillArrowRightCircleFill , BsFillArrowLeftCircleFill, BsFillPlayCircleFill} from "react-icons/bs";
 import { AiFillLike } from "react-icons/ai";
 const Wrapper = styled.div`
 background:black;
 `
-
 const Loader = styled.div`
 height:20vh;
 display:flex;
 justify-content:center;
 align-items:center;
 `
-
 const Banner = styled.div<{bgPhoto:string}>`
 height:100vh;
 display:flex;
@@ -27,12 +25,10 @@ padding:60px;
 background-image: linear-gradient(rgba(0,0,0,1), rgba(0,0,0,0)) , url(${props => props.bgPhoto});
 background-size:cover;
 `
-
 const Title = styled.h2`
 font-size:68px;
 margin-bottom:20px;
 `
-
 const Overview = styled.p`
 font-size:30px;
 width:50%;
@@ -68,7 +64,6 @@ height:200px;
 top:-50px;
 font-weight:400;
 `
-
 const Overlay = styled(motion.div)`
 position:absolute;
 top:0;
@@ -91,19 +86,46 @@ background-color:${props=>props.theme.black.lighter};
 const BigCover = styled.div`
 width:100%;
 height:400px;
+opacity:0.6;
 background-size:cover;
 background-position:center center;
 `
 const BigTitle = styled.h3`
 color:${props => props.theme.white.lighter};
-font-size:35px;
+font-size:45px;
 position:relative;
-top:-25px;
+display:flex;
+justify-content:center;
+align-items:center;
+top:-250px;
+font-family:cursive;
 padding:20px;
+`
+const BigGen = styled.h4`
+color:${props => props.theme.white.lighter};
+font-size:20px;
+position:relative;
+display:flex;
+align-items:center;
+justify-content:center;
+top:-250px;
+font-family:cursive;
+div{
+  margin:0 5px;
+  width:120px;
+  height:50px;
+  border-radius:20px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background-color:rgba(0,0,0,0.2);
+}
+
 `
 const BigOverView = styled.p`
 padding:20px;
-margin-top:-50px;
+margin-top:-150px;
+font-family:fantasy;
 color:${props => props.theme.white.lighter};
 `
 const BigScore = styled.div`
@@ -130,8 +152,6 @@ border-radius:5px;
 cursor:pointer;
 color:${props=>props.theme.white.lighter};
 `
-
-
 const Row = styled(motion.div)`
 display:grid;
 gap:5px;
@@ -180,7 +200,6 @@ const rowVariants = {
   }),
 }
 const offset = 6;
-
 const boxVariants = {
   normal: {
     scale: 1,
@@ -196,7 +215,6 @@ const boxVariants = {
     },
   },
 };
-
 const infoVariants = {
   hover: {
     opacity: 1,
@@ -207,13 +225,12 @@ const infoVariants = {
     },
   },
 };
-
 const PopularSlider = styled.div`
 position:relative;
 top: 200px;
 `
-
-
+const API_KEY = '505148347d18c10aeac2faa958dbbf5c';
+const BASE_PATH = 'https://api.themoviedb.org/3';
 
 function Home(){
   const {data:popular} = useQuery<IGetMoviesResult>(
@@ -223,13 +240,22 @@ function Home(){
   const {data:nowLoading, isLoading} = useQuery<IGetMoviesResult>(
     ['movies', 'nowPlaying'],
     getMovies);
+
+  const [gen,setgen] = useState<any[]>([]);
+    useEffect(()=>{
+      fetch(`${BASE_PATH}/genre/movie/list?api_key=${API_KEY}&language=ko-KR`)
+      .then((res)=>res.json())
+      .then((json)=>{
+        setgen(json.genres);
+      })
+    },[])
+    
     const navigate = useNavigate();
     const {scrollY} = useScroll();
     const moviePathMatch:PathMatch<string>|null = useMatch('/movies/:movieId');
     const onOverlayClick = () => navigate('/');
     const clickedMovie = moviePathMatch?.params.movieId && nowLoading?.results.find(movie => movie.id+'' === moviePathMatch.params.movieId)
     const clickedMovie2 = moviePathMatch?.params.movieId && popular?.results.find(movie => movie.id+'' === moviePathMatch.params.movieId)
-    console.log(moviePathMatch);
     const onBoxClicked = (movieId:number) => {
       navigate(`/movies/${movieId}`);
     };
@@ -294,7 +320,7 @@ function Home(){
           </Banner>
 
           <NowSlider>
-            <SliderText>Now Playing Movies</SliderText>
+            <SliderText>현재 상영중인 영화</SliderText>
             <AnimatePresence
             custom={back} 
             initial={false}
@@ -332,7 +358,7 @@ function Home(){
           </NowSlider>
 
           <PopularSlider>
-            <SliderText>Popular Movies</SliderText>
+            <SliderText>인기있는 영화</SliderText>
             <AnimatePresence
             custom={back2} 
             initial={false}
@@ -390,6 +416,17 @@ function Home(){
               backgroundImage:`url(${makeImagePath(clickedMovie.backdrop_path, 'w500')})`
               }}/>
             <BigTitle>{clickedMovie.title}</BigTitle>
+            <BigGen>
+              {clickedMovie.genre_ids.map((g) => (
+                gen.map((v)=>(
+                  v.id === g ? (
+                    <div>{v.name}</div>
+                    
+                  ): null
+                )) 
+              ))}
+              
+            </BigGen>
             <BigOverView>{clickedMovie.overview}</BigOverView>
             <BigScore><AiFillLike/>{clickedMovie.vote_count}</BigScore>
             <BigReleaseDate>{clickedMovie.release_date}</BigReleaseDate>
@@ -403,6 +440,16 @@ function Home(){
               backgroundImage:`url(${makeImagePath(clickedMovie2.backdrop_path, 'w500')})`
               }}/>
             <BigTitle>{clickedMovie2.title}</BigTitle>
+            <BigGen>
+              {clickedMovie2.genre_ids.map((g) => (
+                gen.map((v)=>(
+                  v.id === g ? (
+                    <div>{v.name}</div>
+                    
+                  ): null
+                )) 
+              ))}
+            </BigGen>
             <BigOverView>{clickedMovie2.overview}</BigOverView>
             <BigScore><AiFillLike/>{clickedMovie2.vote_count}</BigScore>
             <BigReleaseDate>{clickedMovie2.release_date}</BigReleaseDate>

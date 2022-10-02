@@ -158,7 +158,6 @@ function Header() {
     const Navigate = useNavigate();
     const {register, handleSubmit} =useForm<IForm>();
     const onValid = (data:IForm) => {
-      console.log(data);
       Navigate(`/search?keyword=${data.keyword}`)
     }
   return (
