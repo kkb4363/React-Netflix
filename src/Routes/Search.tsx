@@ -181,6 +181,7 @@ const infoVariants = {
 
 function Search(){
    const [data,setdata] = useState<any[]>([]);
+   const [data2,setdata2] = useState<any[]>([]);
    const location = useLocation()
    const navigate = useNavigate();
    const keyword = new URLSearchParams(location.search).get('keyword');
@@ -190,7 +191,15 @@ function Search(){
     .then((json)=>{
         setdata(json.results);
     })
-   },[])
+   },[keyword])
+   useEffect(()=>{
+    fetch(`${BASE_PATH}/search/multi?api_key=${API_KEY}&query=${keyword}&page=2`)
+    .then((res) => res.json())
+    .then((json)=>{
+        setdata2(json.results);
+    })
+   })
+
    const [back, setback] = useState(false);
    const [index, setIndex] = useState(0);
    const [leaving, setLeaving] = useState(false);
@@ -201,8 +210,8 @@ function Search(){
     if(data){
         if(leaving) return;
     toggleLeaving();
-    const total = data.length -2;
-    const MaxIndex = Math.floor(total / offset) -2;
+    const total = data.length ;
+    const MaxIndex = Math.floor(total / offset) -1;
     setIndex((prev) => prev === 0? MaxIndex : prev -1);
     setback(false);
     }
@@ -211,8 +220,8 @@ function Search(){
     if(data){
         if(leaving) return;
     toggleLeaving();
-    const total = data.length -2;
-    const MaxIndex = Math.floor(total / offset) -2;
+    const total = data.length ;
+    const MaxIndex = Math.floor(total / offset)-1 ;
     setIndex((prev) => prev === MaxIndex? 0 : prev +1);
     setback(true);
     }
@@ -221,6 +230,7 @@ function Search(){
    const onBoxClicked = (daId:number) => {
     navigate(`/search/${daId}`);
    }
+   console.log(data)
 
    const SearchPathMatch:PathMatch<string>|null = useMatch(`/search/:daId`);
    const onOverlayClick = () => navigate(`/search?keyword=${keyword}`);
@@ -265,6 +275,7 @@ function Search(){
                     <Next onClick={NextBtn}><BsFillArrowRightCircleFill/></Next>
                 </AnimatePresence>
             </Slider>
+
             <AnimatePresence>
                 {SearchPathMatch ? 
                 <>

@@ -21,6 +21,7 @@ interface IMovie{
     vote_count:number;
     release_date:string;
     genre_ids:[];
+    vote_average:number;
 }
 
 interface ITV{
@@ -31,6 +32,7 @@ interface ITV{
     vote_count:number;
     first_air_date:string;
     genre_ids:[];
+    vote_average:number;
 }
 
 interface ISearch{
@@ -41,6 +43,7 @@ interface ISearch{
     overview:string;
     release_date:string;
     vote_count:number;
+    vote_average:number;
 }
 
 export interface IGetMoviesResult {
@@ -103,10 +106,4 @@ export function getPopularTv(){
 export function getAiringTv(){
     return fetch(`${BASE_PATH}/tv/airing_today?api_key=${API_KEY}&language=ko-KR`)
     .then((response)=> response.json());
-}
-export function GetSearch(){
-    const location = useLocation()
-   const keyword = new URLSearchParams(location.search).get('keyword');
-    return fetch(`${BASE_PATH}/search/multi?api_key=${API_KEY}&query=${keyword}&language=ko-KR`)
-    .then((Response) => Response.json()); 
 }

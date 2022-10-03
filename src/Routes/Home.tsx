@@ -6,7 +6,7 @@ import {motion, AnimatePresence,useScroll} from 'framer-motion';
 import { useEffect, useState } from "react";
 import {useNavigate, useMatch, PathMatch} from 'react-router-dom';
 import { BsFillArrowRightCircleFill , BsFillArrowLeftCircleFill, BsFillPlayCircleFill} from "react-icons/bs";
-import { AiFillLike } from "react-icons/ai";
+import { AiFillStar } from "react-icons/ai";
 const Wrapper = styled.div`
 background:black;
 `
@@ -112,6 +112,7 @@ top:-250px;
 font-family:cursive;
 div{
   margin:0 5px;
+  font-weight:bold;
   width:120px;
   height:50px;
   border-radius:20px;
@@ -232,6 +233,22 @@ top: 200px;
 const API_KEY = '505148347d18c10aeac2faa958dbbf5c';
 const BASE_PATH = 'https://api.themoviedb.org/3';
 
+const BTN = styled.div`
+cursor:pointer;
+margin-top:20px;
+width:100px;
+height:50px;
+background-color:white;
+top:200px;
+left:0;
+display:flex;
+justify-content:center;
+align-items:center;
+border-radius:20px;
+font-weight:bold;
+color:black;
+`
+
 function Home(){
   const {data:popular} = useQuery<IGetMoviesResult>(
     ['movies','popular'],
@@ -259,7 +276,10 @@ function Home(){
     const onBoxClicked = (movieId:number) => {
       navigate(`/movies/${movieId}`);
     };
-
+    const onDetail = (movieId:string) => {
+      navigate(`/movies/${movieId}`);
+    }
+    
     const [back, setback] = useState(false);
     const [back2, setback2] = useState(false);
     const [index, setIndex] = useState(0);
@@ -317,6 +337,8 @@ function Home(){
           bgPhoto={makeImagePath(nowLoading?.results[0].backdrop_path || "")}>
             <Title>{nowLoading?.results[0].title}</Title>
             <Overview>{nowLoading?.results[0].overview}</Overview>
+            <BTN
+            onClick={() => onDetail(nowLoading?.results[0].id+'')}>자세히 보기</BTN>
           </Banner>
 
           <NowSlider>
@@ -398,6 +420,8 @@ function Home(){
           <AnimatePresence>
             {moviePathMatch ? 
             <>
+            
+
             <Overlay 
             onClick={onOverlayClick}
             animate={{opacity : 1}}
@@ -425,10 +449,9 @@ function Home(){
                   ): null
                 )) 
               ))}
-              
             </BigGen>
             <BigOverView>{clickedMovie.overview}</BigOverView>
-            <BigScore><AiFillLike/>{clickedMovie.vote_count}</BigScore>
+            <BigScore><AiFillStar/>{clickedMovie.vote_average}</BigScore>
             <BigReleaseDate>{clickedMovie.release_date}</BigReleaseDate>
             <BigPlay><BsFillPlayCircleFill/></BigPlay>
             </>}
@@ -451,7 +474,7 @@ function Home(){
               ))}
             </BigGen>
             <BigOverView>{clickedMovie2.overview}</BigOverView>
-            <BigScore><AiFillLike/>{clickedMovie2.vote_count}</BigScore>
+            <BigScore><AiFillStar/>{clickedMovie2.vote_average}</BigScore>
             <BigReleaseDate>{clickedMovie2.release_date}</BigReleaseDate>
             <BigPlay><BsFillPlayCircleFill/></BigPlay>
             </>}

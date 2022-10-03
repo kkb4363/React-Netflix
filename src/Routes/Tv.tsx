@@ -5,6 +5,7 @@ import {motion, AnimatePresence,useScroll} from 'framer-motion';
 import { useEffect, useState } from "react";
 import styled from 'styled-components';
 import { makeImagePath } from "../utils";
+import { AiFillStar } from "react-icons/ai";
 import { BsFillArrowRightCircleFill , BsFillArrowLeftCircleFill, BsFillPlayCircleFill} from "react-icons/bs";
 const offset = 6;
 const API_KEY = '505148347d18c10aeac2faa958dbbf5c';
@@ -229,7 +230,21 @@ top:70px;
 border:rgba(0,0,0,0);
 color:white;
 `
-
+const BTN = styled.div`
+cursor:pointer;
+margin-top:20px;
+width:100px;
+height:50px;
+background-color:white;
+top:200px;
+left:0;
+display:flex;
+justify-content:center;
+align-items:center;
+border-radius:20px;
+font-weight:bold;
+color:black;
+`
 function Tv(){
     const [gen,setgen] =useState<any[]>([]);
     useEffect(()=>{
@@ -260,6 +275,9 @@ function Tv(){
     const onBoxClicked = (tvId:number) => {
         navigate(`/tv/${tvId}`);
     };
+    const onDetail = (movieId:string) => {
+      navigate(`/tv/${movieId}`);
+    }
 
     const [back, setback] = useState(false);
     const [back2, setback2] = useState(false);
@@ -273,8 +291,8 @@ function Tv(){
         if(Popular){
             if(leaving) return;
         toggleLeaving();
-        const totalTv = Popular.results.length -2;
-        const MaxIndex = Math.floor(totalTv/offset) -2;
+        const totalTv = Popular.results.length ;
+        const MaxIndex = Math.floor(totalTv/offset)-1 ;
         setIndex((prev) => prev === 0 ? MaxIndex : prev -1);
         setback(false);
         }
@@ -283,8 +301,8 @@ function Tv(){
         if(Popular){
             if(leaving) return;
         toggleLeaving();
-        const totalTv = Popular.results.length -2;
-        const MaxIndex = Math.floor(totalTv/offset) -2;
+        const totalTv = Popular.results.length ;
+        const MaxIndex = Math.floor(totalTv/offset)-1 ;
         setIndex((prev) => prev === MaxIndex ? 0 : prev +1);
         setback(true);    
     }
@@ -294,8 +312,8 @@ function Tv(){
         if(Airing){
             if(leaving) return;
         toggleLeaving();
-        const totalTv = Airing.results.length -2;
-        const MaxIndex2 = Math.floor(totalTv/offset) -2;
+        const totalTv = Airing.results.length ;
+        const MaxIndex2 = Math.floor(totalTv/offset) -1;
         setIndex2((prev)=> prev === 0? MaxIndex2 : prev -1);
         setback2(false);
     }
@@ -304,8 +322,8 @@ function Tv(){
         if(Airing){
             if(leaving) return;
         toggleLeaving();
-        const totalTv = Airing.results.length -2;
-        const MaxIndex2 = Math.floor(totalTv/offset) -2;
+        const totalTv = Airing.results.length ;
+        const MaxIndex2 = Math.floor(totalTv/offset) -1;
         setIndex2((prev)=> prev === MaxIndex2? 0 : prev+1);
         setback2(true);
     }
@@ -319,6 +337,8 @@ function Tv(){
         bgPhoto={makeImagePath(Popular?.results[0].backdrop_path || '')}>
         <Title>{Popular?.results[0].name}</Title>
         <Overview>{Popular?.results[0].overview}</Overview>
+        <BTN
+            onClick={() => onDetail(Popular?.results[0].id+'')}>자세히 보기</BTN>
         </Banner>
 
         <PoSlider>
@@ -422,7 +442,7 @@ function Tv(){
               ))}
             </BigGen>
                 <BigOverView>{clickTv.overview}</BigOverView>
-                <BigScore>{clickTv.vote_count}</BigScore>
+                <BigScore><AiFillStar/>{clickTv.vote_average}</BigScore>
                 <BigReleaseDate>{clickTv.first_air_date}</BigReleaseDate>
                 <BigPlay><BsFillPlayCircleFill/></BigPlay>
                 </>}
@@ -443,7 +463,7 @@ function Tv(){
               ))}
             </BigGen>
                 <BigOverView>{clickTv2.overview}</BigOverView>
-                <BigScore>{clickTv2.vote_count}</BigScore>
+                <BigScore><AiFillStar/>{clickTv2.vote_average}</BigScore>
                 <BigReleaseDate>{clickTv2.first_air_date}</BigReleaseDate>
                 <BigPlay><BsFillPlayCircleFill/></BigPlay>
                 </>}
