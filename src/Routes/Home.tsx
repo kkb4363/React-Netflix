@@ -197,7 +197,7 @@ const rowVariants = {
     x:0,
   },
   exit : (custom:boolean) => ( {
-    x: custom? -window.outerWidth -5 : window.outerWidth +5,
+    x: custom? -window.outerWidth -5 : +window.outerWidth +5,
   }),
 }
 const offset = 6;
@@ -267,6 +267,7 @@ function Home(){
       })
     },[])
     
+    console.log(nowLoading);
     const navigate = useNavigate();
     const {scrollY} = useScroll();
     const moviePathMatch:PathMatch<string>|null = useMatch('/movies/:movieId');
@@ -291,8 +292,8 @@ function Home(){
         if(nowLoading){
           if(leaving) return;
         toggleLeaving();
-        const totalMovies2 = nowLoading.results.length -1;
-        const maxIndex2 = Math.floor(totalMovies2/offset) -1;
+        const totalMovies = nowLoading.results.length -1;
+        const maxIndex2 = Math.floor(totalMovies/offset) -1;
         setIndex((prev) => prev === 0 ? maxIndex2 : prev -1);
         setback(false);
         }
@@ -305,15 +306,15 @@ function Home(){
         const maxIndex = Math.floor(totalMovies/ offset) -1 ; {/* 인덱스의 길이구하기 , Math.ceil은 올림, -1을 해주는 이유는 page가 0에서 시작하기 때문에 */}
         setIndex((prev) => prev === maxIndex ? 0 : prev + 1); 
         setback(true);
-        }
+}
       };
   
     const PopularPrevBtn = () => {
       if(popular){
         if(leaving) return;
       toggleLeaving();
-      const totalMovies2 = popular.results.length -2;
-      const maxIndex2 = Math.floor(totalMovies2/offset) -2;
+      const totalMovies2 = popular.results.length ;
+      const maxIndex2 = Math.floor(totalMovies2/offset) -1;
       setIndex2((prev) => prev === 0 ? maxIndex2 : prev -1);
       setback2(false);
       }
@@ -322,8 +323,8 @@ function Home(){
       if(popular){
         if(leaving) return;
       toggleLeaving();
-      const totalMovies = popular.results.length -2; {/*영화 개수 알아내기 , -1을 해주는 이유는 이미 메인페이지에 영화 하나 쓰고있으니깐 */}
-      const maxIndex = Math.floor(totalMovies/ offset) -2 ; {/* 인덱스의 길이구하기 , Math.ceil은 올림, -1을 해주는 이유는 page가 0에서 시작하기 때문에 */}
+      const totalMovies2 = popular.results.length ; {/*영화 개수 알아내기 , -1을 해주는 이유는 이미 메인페이지에 영화 하나 쓰고있으니깐 */}
+      const maxIndex = Math.floor(totalMovies2/ offset) -1 ; {/* 인덱스의 길이구하기 , Math.ceil은 올림, -1을 해주는 이유는 page가 0에서 시작하기 때문에 */}
       setIndex2((prev) => prev === maxIndex ? 0 : prev + 1); 
       setback2(true);
       }
@@ -359,7 +360,7 @@ function Home(){
               {nowLoading?.results.slice(1).slice(offset*index, offset*index+offset)
               .map((movie) => (
                 <Box
-                layoutId={movie.id+''}
+                layoutId={movie.backdrop_path}
                 variants={boxVariants}
                 key={movie.id} 
                 whileHover='hover'

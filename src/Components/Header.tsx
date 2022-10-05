@@ -50,7 +50,7 @@ const Item = styled.li`
   }
 `;
 
-const Search = styled.form`
+export const Search2 = styled.form`
   color: white;
   display:flex;
   align-items:center;
@@ -159,7 +159,7 @@ function Header() {
     const Navigate = useNavigate();
     const {register, handleSubmit} =useForm<IForm>();
     const onValid = (data:IForm) => {
-      Navigate(`/search?keyword=${data.keyword}`)
+      Navigate(`/search?query=${data.keyword}`)
     }
   return (
     <Nav 
@@ -193,7 +193,7 @@ function Header() {
         </Items>
       </Col>
       <Col>
-        <Search onSubmit={handleSubmit(onValid)}>
+        <Search2 onSubmit={handleSubmit(onValid)}>
           <motion.svg
             onClick={toggleSearch}
             animate={{x: searchOpen ? -210 : 0}}
@@ -213,7 +213,7 @@ function Header() {
           transition={{type:'linear'}}
           initial={{scaleX : 0}}
           placeholder='Search for movie or tv show...'/>
-        </Search>
+        </Search2>
       </Col>
     </Nav>
   );

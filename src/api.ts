@@ -1,4 +1,6 @@
 import { useLocation, useNavigate, PathMatch, useMatch } from "react-router-dom";
+import axios from 'axios';
+
 const API_KEY = '505148347d18c10aeac2faa958dbbf5c';
 const BASE_PATH = 'https://api.themoviedb.org/3';
 
@@ -7,10 +9,6 @@ interface MGen{
     name:string;
 }
 
-interface TGen{
-    id:number;
-    name:string;
-}
 
 interface IMovie{
     id:number;
@@ -65,6 +63,10 @@ export interface IGetTvResult {
 }
 
 export interface IGetSearch{
+    dates:{
+        maximum:string;
+        minimum:string;
+    }
     page:number,
     results:ISearch[];
     total_pages:number,
@@ -97,13 +99,16 @@ export function getTVgenres(){
     return fetch(`${BASE_PATH}/genre/tv/list?api_key=${API_KEY}&language=ko-KR`)
     .then((response) => response.json());
 }
-
-
 export function getPopularTv(){
     return fetch(`${BASE_PATH}/tv/top_rated?api_key=${API_KEY}&language=ko-KR`)
     .then((response) => response.json());
 }
 export function getAiringTv(){
     return fetch(`${BASE_PATH}/tv/airing_today?api_key=${API_KEY}&language=ko-KR`)
+    .then((response)=> response.json());
+}
+
+export function getMovieSearchTv(keyword:string){
+    return fetch(`${BASE_PATH}/search/movie?api_key=${API_KEY}&language=ko-KR&query=${keyword}`)
     .then((response)=> response.json());
 }

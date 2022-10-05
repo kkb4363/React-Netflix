@@ -1,12 +1,13 @@
-import { useLocation, useNavigate, PathMatch, useMatch, Navigate } from "react-router-dom";
+import { PathMatch, Route, Routes, useLocation, useMatch, useNavigate, useParams } from "react-router-dom";
 import styled from 'styled-components';
-import { AnimatePresence, useScroll ,motion} from "framer-motion";
+import {motion, AnimatePresence,useScroll} from 'framer-motion';
 import { useEffect, useState } from "react";
 import { makeImagePath } from "../utils";
-import { BsFillPlayCircleFill,BsFillArrowLeftCircleFill, BsFillArrowRightCircleFill } from "react-icons/bs";
+import { BsFillArrowRightCircleFill , BsFillArrowLeftCircleFill, BsFillPlayCircleFill} from "react-icons/bs";
+import { AiFillStar } from "react-icons/ai";
+import { useQuery } from "@tanstack/react-query";
+import { getMovieSearchTv, IGetSearch } from "../api";
 
-const API_KEY = '505148347d18c10aeac2faa958dbbf5c';
-const BASE_PATH = 'https://api.themoviedb.org/3';
 const offset = 6;
 
 const Wrapper = styled.div`
@@ -176,133 +177,134 @@ const infoVariants = {
   cursor:pointer;
   color:${props=>props.theme.white.lighter};
   `
-
-
+  const Title = styled.h2`
+  font-size:38px;
+  display:grid;
+  place-items:center;
+  min-height:100vh;
+  `
+  const Overview = styled.p`
+  font-size:30px;
+  display:grid;
+  place-items:center;
+  margin-top:-600px;
+  `
 
 function Search(){
-   const [data,setdata] = useState<any[]>([]);
-   const [data2,setdata2] = useState<any[]>([]);
-   const location = useLocation()
+   const location = useLocation();
    const navigate = useNavigate();
-   const keyword = new URLSearchParams(location.search).get('keyword');
-   useEffect(()=>{
-    fetch(`${BASE_PATH}/search/multi?api_key=${API_KEY}&query=${keyword}`)
-    .then((res) => res.json())
-    .then((json)=>{
-        setdata(json.results);
-    })
-   },[keyword])
-   useEffect(()=>{
-    fetch(`${BASE_PATH}/search/multi?api_key=${API_KEY}&query=${keyword}&page=2`)
-    .then((res) => res.json())
-    .then((json)=>{
-        setdata2(json.results);
-    })
-   })
-
-   const [back, setback] = useState(false);
+   const keyword = new URLSearchParams(location.search).get('query');
    const [index, setIndex] = useState(0);
-   const [leaving, setLeaving] = useState(false);
+   const [back, setback] = useState(false);
    const toggleLeaving = () => setLeaving(prev => !prev);
-   const {scrollY} = useScroll();
+   const [leaving, setLeaving] = useState(false);
+   const {data:movie,isLoading} = useQuery<IGetSearch>(
+    ['movie',keyword], 
+     () =>getMovieSearchTv(keyword+''),
+   )
 
    const PrevBtn = () => {
-    if(data){
-        if(leaving) return;
+    if(movie){
+      if(leaving) return;
     toggleLeaving();
-    const total = data.length ;
-    const MaxIndex = Math.floor(total / offset) -1;
-    setIndex((prev) => prev === 0? MaxIndex : prev -1);
+    const totalMovies = movie.results.length -1;
+    const maxIndex2 = Math.floor(totalMovies/offset) -1;
+    setIndex((prev) => prev === 0 ? maxIndex2 : prev -1);
     setback(false);
     }
    }
    const NextBtn = () => {
-    if(data){
-        if(leaving) return;
+    if(movie){
+      if(leaving) return;
     toggleLeaving();
-    const total = data.length ;
-    const MaxIndex = Math.floor(total / offset)-1 ;
-    setIndex((prev) => prev === MaxIndex? 0 : prev +1);
+    const totalMovies = movie.results.length -1; {/*영화 개수 알아내기 , -1을 해주는 이유는 이미 메인페이지에 영화 하나 쓰고있으니깐 */}
+    const maxIndex = Math.floor(totalMovies/ offset) -1 ; {/* 인덱스의 길이구하기 , Math.ceil은 올림, -1을 해주는 이유는 page가 0에서 시작하기 때문에 */}
+    setIndex((prev) => prev === maxIndex ? 0 : prev + 1); 
     setback(true);
-    }
+}
+   };
+    const {scrollY} = useScroll();
+    const onBoxClicked = (MovieId:number) => {
+    navigate(`/search?query=${keyword+''}/${MovieId}`);
    }
-
-   const onBoxClicked = (daId:number) => {
-    navigate(`/search/${daId}`);
-   }
-   console.log(data)
-
-   const SearchPathMatch:PathMatch<string>|null = useMatch(`/search/:daId`);
-   const onOverlayClick = () => navigate(`/search?keyword=${keyword}`);
-
-   const clickSearch = SearchPathMatch?.params.daId && data?.find(da => da.id+"" === SearchPathMatch.params.daId)
-   
+   const moviePathMatch:PathMatch<string>|null = useMatch(`/search?query=${keyword+''}/:Id`);
+   console.log(moviePathMatch?.params.Id)
+   const clickedMovie = moviePathMatch?.params.MovieId && movie?.results.find(mov => mov.id+'' === moviePathMatch.params.MovieId);
+   const onOverlayClick = () => navigate(`/search`);
+     
     return (
-        <Wrapper>
-            <Slider>
-                <SliderText>search results</SliderText>
-                <AnimatePresence
-                custom={back}
-                initial={false}
-                onExitComplete={toggleLeaving}>
-                    <Row
-                    custom={back}
-                    variants={rowVariants}
-                    initial='hidden'
-                    animate='visible'
-                    exit='exit'
-                    transition={{type:'tween',duration:0.5}}
-                    key={index}>
-                        {data?.slice(offset*index , offset*index+offset)
-                        .map((da) => (
-                            <Box
-                            layoutId={da.id+''}
-                            variants={boxVariants}
-                            key={da.id}
-                            whileHover='hover'
-                            initial='normal'
-                            onClick={()=> onBoxClicked(da.id)}
-                            transition={{type:'tween'}}
-                            bgPhoto={makeImagePath(da.backdrop_path,'w400' || '')}>
-                                <Info
-                                variants={infoVariants}>
-                                    <h4>{da.title}</h4>
-                                </Info>
-                            </Box>
-                        ))}
-                    </Row>
-                    <Prev onClick={PrevBtn}><BsFillArrowLeftCircleFill/></Prev>
-                    <Next onClick={NextBtn}><BsFillArrowRightCircleFill/></Next>
-                </AnimatePresence>
-            </Slider>
-
-            <AnimatePresence>
-                {SearchPathMatch ? 
-                <>
-                <Overlay
-                onClick={onOverlayClick}
-                animate={{opacity:1}}
-                exit={{opacity:0}}/>
-
-                <BigMovie
-                layoutId={SearchPathMatch.params.daId}
-                style={{top:scrollY.get()+100}}>
-                    {clickSearch &&
-                    <>
-                    <BigCover
-                    style={{backgroundImage:`url(${makeImagePath(clickSearch.backdrop_path, 'w500')})`}}/>
-                    <BigTitle>{clickSearch.title}</BigTitle>
-                    <BigOverView>{clickSearch.overview}</BigOverView>
-                    <BigScore>{clickSearch.vote_count}</BigScore>
-                    <BigReleaseDate>{clickSearch.release_date}</BigReleaseDate>
-                    <BigPlay><BsFillPlayCircleFill/></BigPlay>
-                    </>}
-                </BigMovie>
-
-                </> : null }
+      <Wrapper>
+            <>
+          <Slider>
+            <SliderText>영화</SliderText>
+            <AnimatePresence
+            custom={back}
+            initial={false}
+            onExitComplete={toggleLeaving}>
+              <Row
+              custom={back}
+              variants={rowVariants}
+              initial='hidden'
+              animate='visible'
+              exit='exit'
+              transition={{type:'tween', duration:0.5}}
+              key ={index}>
+                {movie?.results.slice(offset*index, offset*index+offset)
+                .map((movies) => (
+                  <Box
+                  layoutId={movies.backdrop_path}
+                  variants={boxVariants}
+                  key={movies.id}
+                  whileHover='hover'
+                  initial='normal'
+                  onClick={()=> onBoxClicked(movies.id)}
+                  transition={{type:'tween'}}
+                  bgPhoto={makeImagePath(movies.backdrop_path, 'w400' || "")}>
+                    <Info variants={infoVariants}>
+                      <h4>{movies.title}</h4>
+                    </Info>
+                  </Box>
+                ))}
+              </Row>
+              <Prev onClick={PrevBtn}><BsFillArrowLeftCircleFill/></Prev>
+              <Next onClick={NextBtn}><BsFillArrowRightCircleFill/></Next>
             </AnimatePresence>
+          </Slider>
+      
 
-        </Wrapper>
+          <AnimatePresence>
+            {moviePathMatch ?
+            <>
+            <Overlay
+            onClick={onOverlayClick}
+            animate={{opacity:1}}
+            exit={{opacity:0}}
+            />
+            <BigMovie
+            layoutId={moviePathMatch.params.MovieId}
+            style={{top:scrollY.get()+100}}>
+
+            
+            {clickedMovie &&
+            <>
+            <BigCover 
+            style={{
+              backgroundImage:`url(${makeImagePath(clickedMovie.backdrop_path, 'w500')})`
+              }}/>
+            <BigTitle>{clickedMovie.title}</BigTitle>
+            <BigOverView>{clickedMovie.overview}</BigOverView>
+            <BigScore><AiFillStar/>{clickedMovie.vote_average}</BigScore>
+            <BigReleaseDate>{clickedMovie.release_date}</BigReleaseDate>
+            <BigPlay><BsFillPlayCircleFill/></BigPlay>
+            </>}
+            </BigMovie>
+            </>
+            :null}
+          </AnimatePresence>
+        </>
+          
+          
+      </Wrapper>
     )
 }
 export default Search;
