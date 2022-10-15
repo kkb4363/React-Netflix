@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getMgenres, getMovies,  getPopularMovies,  IGetMoviesResult, IMovieGenres } from "../api";
+import { getlatestMovies, getMgenres,  getnowplayingMovies,  gettop_ratedMovies,  getupcomingMovies,  IGetlatestMovie,  IGetMoviesResult, IMovieGenres } from "../api";
 import styled from 'styled-components';
 import { makeImagePath } from "../utils";
 import {motion, AnimatePresence,useScroll} from 'framer-motion';
@@ -226,10 +226,20 @@ const infoVariants = {
     },
   },
 };
-const PopularSlider = styled.div`
+const Top_ratedSlider = styled.div`
 position:relative;
 top: 200px;
 `
+
+const UpcomingSlider = styled.div`
+position:relative;
+top: 500px;
+`
+const LatestSlider = styled.div`
+position:relative;
+top:800px;
+`
+
 const API_KEY = '505148347d18c10aeac2faa958dbbf5c';
 const BASE_PATH = 'https://api.themoviedb.org/3';
 
@@ -250,14 +260,25 @@ color:black;
 `
 
 function Home(){
-  const {data:popular} = useQuery<IGetMoviesResult>(
-    ['movies','popular'],
-    getPopularMovies);
-  
-  const {data:nowLoading, isLoading} = useQuery<IGetMoviesResult>(
-    ['movies', 'nowPlaying'],
-    getMovies);
 
+  const useMultipleQuery = () => {
+    const top_rated = useQuery<IGetMoviesResult>(['top_rated'],gettop_ratedMovies);
+    const nowPlaying = useQuery<IGetMoviesResult>(['nowPlaying'],getnowplayingMovies);
+    const upcoming = useQuery<IGetMoviesResult>(['upcoming'],getupcomingMovies);
+    return[top_rated,nowPlaying,upcoming]
+  }
+
+  const [
+    {data:top_rateddata},
+    {data:nowPlayingdata , isLoading:loading},
+    {data:upcomingdata},
+  ] = useMultipleQuery()
+
+  const {data:latestdata} = useQuery<IGetlatestMovie>(
+    ['latest'],
+    getlatestMovies
+  )
+    
   const [gen,setgen] = useState<any[]>([]);
     useEffect(()=>{
       fetch(`${BASE_PATH}/genre/movie/list?api_key=${API_KEY}&language=ko-KR`)
@@ -267,13 +288,14 @@ function Home(){
       })
     },[])
     
-    console.log(nowLoading);
     const navigate = useNavigate();
     const {scrollY} = useScroll();
     const moviePathMatch:PathMatch<string>|null = useMatch('/movies/:movieId');
     const onOverlayClick = () => navigate('/');
-    const clickedMovie = moviePathMatch?.params.movieId && nowLoading?.results.find(movie => movie.id+'' === moviePathMatch.params.movieId)
-    const clickedMovie2 = moviePathMatch?.params.movieId && popular?.results.find(movie => movie.id+'' === moviePathMatch.params.movieId)
+    const clickedMovie = moviePathMatch?.params.movieId && nowPlayingdata?.results.find(movie => movie.id+'' === moviePathMatch.params.movieId)
+    const clickedMovie2 = moviePathMatch?.params.movieId && top_rateddata?.results.find(movie => movie.id+'' === moviePathMatch.params.movieId)
+    const clickedMovie3 = moviePathMatch?.params.movieId && upcomingdata?.results.find(movie => movie.id+'' === moviePathMatch.params.movieId)
+
     const onBoxClicked = (movieId:number) => {
       navigate(`/movies/${movieId}`);
     };
@@ -281,65 +303,89 @@ function Home(){
       navigate(`/movies/${movieId}`);
     }
     
+    
     const [back, setback] = useState(false);
     const [back2, setback2] = useState(false);
+    const [back3, setback3] = useState(false);
     const [index, setIndex] = useState(0);
     const [index2, setIndex2] = useState(0);
+    const [index3, setIndex3] = useState(0)
     const toggleLeaving = () => setLeaving(prev => !prev);
     const [leaving, setLeaving] = useState(false);
 
     const NowPrevBtn = () => {
-        if(nowLoading){
+        if(nowPlayingdata){
           if(leaving) return;
         toggleLeaving();
-        const totalMovies = nowLoading.results.length -1;
+        const totalMovies = nowPlayingdata.results.length -1;
         const maxIndex2 = Math.floor(totalMovies/offset) -1;
         setIndex((prev) => prev === 0 ? maxIndex2 : prev -1);
         setback(false);
         }
-      }
+    }
     const NowNextBtn = () => {
-        if(nowLoading){
+        if(nowPlayingdata){
           if(leaving) return;
         toggleLeaving();
-        const totalMovies = nowLoading.results.length -1; {/*영화 개수 알아내기 , -1을 해주는 이유는 이미 메인페이지에 영화 하나 쓰고있으니깐 */}
+        const totalMovies = nowPlayingdata.results.length -1; {/*영화 개수 알아내기 , -1을 해주는 이유는 이미 메인페이지에 영화 하나 쓰고있으니깐 */}
         const maxIndex = Math.floor(totalMovies/ offset) -1 ; {/* 인덱스의 길이구하기 , Math.ceil은 올림, -1을 해주는 이유는 page가 0에서 시작하기 때문에 */}
         setIndex((prev) => prev === maxIndex ? 0 : prev + 1); 
         setback(true);
 }
-      };
-  
-    const PopularPrevBtn = () => {
-      if(popular){
+    };
+    const Top_ratedPrevBtn = () => {
+      if(top_rateddata){
         if(leaving) return;
       toggleLeaving();
-      const totalMovies2 = popular.results.length ;
+      const totalMovies2 = top_rateddata.results.length ;
       const maxIndex2 = Math.floor(totalMovies2/offset) -1;
       setIndex2((prev) => prev === 0 ? maxIndex2 : prev -1);
       setback2(false);
       }
     }
-    const PopularNextBtn = () => {
-      if(popular){
+    const Top_ratedNextBtn = () => {
+      if(top_rateddata){
         if(leaving) return;
       toggleLeaving();
-      const totalMovies2 = popular.results.length ; {/*영화 개수 알아내기 , -1을 해주는 이유는 이미 메인페이지에 영화 하나 쓰고있으니깐 */}
+      const totalMovies2 = top_rateddata.results.length ; {/*영화 개수 알아내기 , -1을 해주는 이유는 이미 메인페이지에 영화 하나 쓰고있으니깐 */}
       const maxIndex = Math.floor(totalMovies2/ offset) -1 ; {/* 인덱스의 길이구하기 , Math.ceil은 올림, -1을 해주는 이유는 page가 0에서 시작하기 때문에 */}
       setIndex2((prev) => prev === maxIndex ? 0 : prev + 1); 
       setback2(true);
       }
     };
-    
+    const UpcomingPrevBtn = () => {
+      if(upcomingdata){
+        if(leaving) return;
+      toggleLeaving();
+      const totalMovies3 = upcomingdata.results.length ;
+      const maxIndex2 = Math.floor(totalMovies3/offset) -1;
+      setIndex3((prev) => prev === 0 ? maxIndex2 : prev -1);
+      setback3(false);
+      }
+    }
+    const UpcomingNextBtn = () => {
+      if(upcomingdata){
+        if(leaving) return;
+      toggleLeaving();
+      const totalMovies3 = upcomingdata.results.length ; {/*영화 개수 알아내기 , -1을 해주는 이유는 이미 메인페이지에 영화 하나 쓰고있으니깐 */}
+      const maxIndex = Math.floor(totalMovies3/ offset) -1 ; {/* 인덱스의 길이구하기 , Math.ceil은 올림, -1을 해주는 이유는 page가 0에서 시작하기 때문에 */}
+      setIndex3((prev) => prev === maxIndex ? 0 : prev + 1); 
+      setback3(true);
+      }
+    };
+
+
+
   return (
         <Wrapper>
-          {isLoading ? <Loader>Loading...</Loader> 
+          {loading ? <Loader>Loading...</Loader> 
           : <>
           <Banner
-          bgPhoto={makeImagePath(nowLoading?.results[0].backdrop_path || "")}>
-            <Title>{nowLoading?.results[0].title}</Title>
-            <Overview>{nowLoading?.results[0].overview}</Overview>
+          bgPhoto={makeImagePath(latestdata?.backdrop_path || "")}>
+            <Title>{latestdata?.title}</Title>
+            <Overview>{latestdata?.overview}</Overview>
             <BTN
-            onClick={() => onDetail(nowLoading?.results[0].id+'')}>자세히 보기</BTN>
+            onClick={() => onDetail(latestdata?.id+'')}>자세히 보기</BTN>
           </Banner>
 
           <NowSlider>
@@ -357,10 +403,10 @@ function Home(){
               transition={{type:"tween", duration:0.5}}
               key={index}
             >
-              {nowLoading?.results.slice(1).slice(offset*index, offset*index+offset)
+              {nowPlayingdata?.results.slice(offset*index, offset*index+offset)
               .map((movie) => (
                 <Box
-                layoutId={movie.backdrop_path}
+                layoutId={movie.id+''}
                 variants={boxVariants}
                 key={movie.id} 
                 whileHover='hover'
@@ -380,8 +426,8 @@ function Home(){
             </AnimatePresence>
           </NowSlider>
 
-          <PopularSlider>
-            <SliderText>인기있는 영화</SliderText>
+          <Top_ratedSlider>
+            <SliderText>가장 인기 있는 영화</SliderText>
             <AnimatePresence
             custom={back2} 
             initial={false}
@@ -395,7 +441,7 @@ function Home(){
               transition={{type:"tween", duration:0.5}}
               key={index2}
             >
-              {popular?.results.slice(2).slice(offset*index2, offset*index2+offset)
+              {top_rateddata?.results.slice(2).slice(offset*index2, offset*index2+offset)
               .map((movie2) => (
                 <Box
                 layoutId={movie2.id+''}
@@ -413,16 +459,53 @@ function Home(){
                 </Box>
               ))} 
             </Row>
-            <Prev onClick={PopularPrevBtn}><BsFillArrowLeftCircleFill/></Prev>
-            <Next onClick={PopularNextBtn}><BsFillArrowRightCircleFill/></Next>
+            <Prev onClick={Top_ratedPrevBtn}><BsFillArrowLeftCircleFill/></Prev>
+            <Next onClick={Top_ratedNextBtn}><BsFillArrowRightCircleFill/></Next>
             </AnimatePresence>
-          </PopularSlider>
+          </Top_ratedSlider>
+
+          <UpcomingSlider>
+            <SliderText>곧 출시될 영화</SliderText>
+            <AnimatePresence
+            custom={back3} 
+            initial={false}
+            onExitComplete={toggleLeaving}>
+            <Row 
+              custom={back3}
+              variants={rowVariants} 
+              initial='hidden' 
+              animate='visible' 
+              exit='exit'
+              transition={{type:"tween", duration:0.5}}
+              key={index3}
+            >
+              {upcomingdata?.results.slice(2).slice(offset*index3, offset*index3+offset)
+              .map((movie3) => (
+                <Box
+                layoutId={movie3.id+''}
+                variants={boxVariants}
+                key={movie3.id} 
+                whileHover='hover'
+                initial='normal'
+                onClick={()=> onBoxClicked(movie3.id)}
+                transition={{type:'tween'}}
+                bgPhoto={makeImagePath(movie3.backdrop_path, 'w400'  || "")}
+                >
+                <Info variants={infoVariants}>
+                <h4>{movie3.title}</h4>
+                </Info>
+                </Box>
+              ))} 
+            </Row>
+            <Prev onClick={UpcomingPrevBtn}><BsFillArrowLeftCircleFill/></Prev>
+            <Next onClick={UpcomingNextBtn}><BsFillArrowRightCircleFill/></Next>
+            </AnimatePresence>
+          </UpcomingSlider>
+
 
           <AnimatePresence>
             {moviePathMatch ? 
             <>
-            
-
             <Overlay 
             onClick={onOverlayClick}
             animate={{opacity : 1}}
@@ -480,13 +563,34 @@ function Home(){
             <BigPlay><BsFillPlayCircleFill/></BigPlay>
             </>}
 
+            {clickedMovie3 && 
+            <>
+            <BigCover 
+            style={{
+              backgroundImage:`url(${makeImagePath(clickedMovie3.backdrop_path, 'w500')})`
+              }}/>
+            <BigTitle>{clickedMovie3.title}</BigTitle>
+            <BigGen>
+              {clickedMovie3.genre_ids.map((g) => (
+                gen.map((v)=>(
+                  v.id === g ? (
+                    <div>{v.name}</div>
+                    
+                  ): null
+                )) 
+              ))}
+            </BigGen>
+            <BigOverView>{clickedMovie3.overview}</BigOverView>
+            <BigScore><AiFillStar/>{clickedMovie3.vote_average}</BigScore>
+            <BigReleaseDate>{clickedMovie3.release_date}</BigReleaseDate>
+            <BigPlay><BsFillPlayCircleFill/></BigPlay>
+            </>}
+
+
             </BigMovie>
             </>
               : null}
           </AnimatePresence>
-          
-          
-          
           </> }
           </Wrapper>
       );

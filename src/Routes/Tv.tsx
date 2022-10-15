@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { PathMatch, useMatch, useNavigate } from "react-router-dom";
-import { getPopularTv, IGetTvResult,getAiringTv } from "../api";
+import { getPopularTv, IGetTvResult,getAiringTv, getTop_ratedTv, IGetlatestTv, getLatestTv } from "../api";
 import {motion, AnimatePresence,useScroll} from 'framer-motion';
 import { useEffect, useState } from "react";
 import styled from 'styled-components';
@@ -36,7 +36,7 @@ const Overview = styled.p`
 font-size:30px;
 width:50%;
 `
-const PoSlider = styled.div`
+const AiringSlider = styled.div`
 position:relative;
 top: -100px;
 `
@@ -121,7 +121,7 @@ const infoVariants = {
       },
     },
   };
-const AirSlider = styled.div`
+const PopularSlider = styled.div`
 position:relative;
 top: 200px;
 `
@@ -245,7 +245,30 @@ border-radius:20px;
 font-weight:bold;
 color:black;
 `
+
+const Top_ratedSlider = styled.div`
+position:relative;
+top: 500px;
+`
 function Tv(){
+    const useMultipleQuery = () => {
+      const Airing = useQuery<IGetTvResult>(['Airing'],getAiringTv)
+      const Popular = useQuery<IGetTvResult>(['Popular'],getPopularTv)
+      const Top_rate = useQuery<IGetTvResult>(['Top_rate'],getTop_ratedTv)
+      return[Airing,Popular,Top_rate]
+    }
+
+    const [
+      {data:Airingdata, isLoading:loading},
+      {data:Populardata},
+      {data:Top_ratedata},
+    ] =useMultipleQuery()
+
+    const {data:Latestdata} = useQuery<IGetlatestTv>(
+      ['latest'],
+      getLatestTv
+    )
+      console.log(Latestdata)
     const [gen,setgen] =useState<any[]>([]);
     useEffect(()=>{
         fetch(`${BASE_PATH}/genre/tv/list?api_key=${API_KEY}&language=ko-KR`)
@@ -254,23 +277,14 @@ function Tv(){
             setgen(json.genres);
         })
     },[])
-
-    const {data:Popular , isLoading} = useQuery<IGetTvResult>(
-        ['TV','popular'],
-        getPopularTv
-    );
-
-    const {data:Airing} = useQuery<IGetTvResult>(
-        ['TV','Airing'],
-        getAiringTv
-    );
     
     const navigate = useNavigate();
     const {scrollY} = useScroll();
     const tvPathMatch:PathMatch<string>|null = useMatch('/tv/:tvId');
     const onOverlayClick = () => navigate('/tv');
-    const clickTv = tvPathMatch?.params.tvId && Popular?.results.find(tv => tv.id+'' === tvPathMatch.params.tvId)
-    const clickTv2 = tvPathMatch?.params.tvId && Airing?.results.find(tv => tv.id+'' === tvPathMatch.params.tvId)
+    const clickTv = tvPathMatch?.params.tvId && Airingdata?.results.find(tv => tv.id+'' === tvPathMatch.params.tvId)
+    const clickTv2 = tvPathMatch?.params.tvId && Populardata?.results.find(tv => tv.id+'' === tvPathMatch.params.tvId)
+    const clickTv3 = tvPathMatch?.params.tvId && Top_ratedata?.results.find(tv => tv.id+'' === tvPathMatch.params.tvId)
 
     const onBoxClicked = (tvId:number) => {
         navigate(`/tv/${tvId}`);
@@ -281,68 +295,89 @@ function Tv(){
 
     const [back, setback] = useState(false);
     const [back2, setback2] = useState(false);
+    const [back3, setback3] = useState(false)
     const [index, setIndex] = useState(0);
     const [index2, setIndex2] = useState(0);
+    const [index3, setIndex3] = useState(0)
     const [leaving, setLeaving] = useState(false);
     const toggleLeaving = () => setLeaving(prev => !prev);
     
 
-    const PoPrevBtn = () => {
-        if(Popular){
+  const AiringPrevBtn = () => {
+        if(Airingdata){
             if(leaving) return;
         toggleLeaving();
-        const totalTv = Popular.results.length ;
+        const totalTv = Airingdata.results.length ;
         const MaxIndex = Math.floor(totalTv/offset)-1 ;
         setIndex((prev) => prev === 0 ? MaxIndex : prev -1);
         setback(false);
         }
     }
-    const PoNextBtn = () => {
-        if(Popular){
+  const AiringNextBtn = () => {
+        if(Airingdata){
             if(leaving) return;
         toggleLeaving();
-        const totalTv = Popular.results.length ;
+        const totalTv = Airingdata.results.length ;
         const MaxIndex = Math.floor(totalTv/offset)-1 ;
         setIndex((prev) => prev === MaxIndex ? 0 : prev +1);
         setback(true);    
     }
     }
-
-    const AirPrevBtn = () => {
-        if(Airing){
+  const PopularPrevBtn = () => {
+        if(Populardata){
             if(leaving) return;
         toggleLeaving();
-        const totalTv = Airing.results.length ;
+        const totalTv = Populardata.results.length ;
         const MaxIndex2 = Math.floor(totalTv/offset) -1;
         setIndex2((prev)=> prev === 0? MaxIndex2 : prev -1);
         setback2(false);
     }
 }
-    const AirNextBtn = () => {
-        if(Airing){
+  const PopularNextBtn = () => {
+        if(Populardata){
             if(leaving) return;
         toggleLeaving();
-        const totalTv = Airing.results.length ;
+        const totalTv = Populardata.results.length ;
         const MaxIndex2 = Math.floor(totalTv/offset) -1;
         setIndex2((prev)=> prev === MaxIndex2? 0 : prev+1);
         setback2(true);
     }
 }
+  const Top_ratedPrevBtn = () => {
+  if(Populardata){
+      if(leaving) return;
+  toggleLeaving();
+  const totalTv = Populardata.results.length ;
+  const MaxIndex2 = Math.floor(totalTv/offset) -1;
+  setIndex2((prev)=> prev === 0? MaxIndex2 : prev -1);
+  setback2(false);
+}
+}
+  const Top_ratedNextBtn = () => {
+  if(Populardata){
+      if(leaving) return;
+  toggleLeaving();
+  const totalTv = Populardata.results.length ;
+  const MaxIndex2 = Math.floor(totalTv/offset) -1;
+  setIndex2((prev)=> prev === MaxIndex2? 0 : prev+1);
+  setback2(true);
+}
+}
 
     return (
         <Wrapper>
-        {isLoading ? <Loader>Loading...</Loader>
+        {loading ? <Loader>Loading...</Loader>
         :<>
         <Banner
-        bgPhoto={makeImagePath(Popular?.results[0].backdrop_path || '')}>
-        <Title>{Popular?.results[0].name}</Title>
-        <Overview>{Popular?.results[0].overview}</Overview>
+        bgPhoto={makeImagePath(Latestdata?.backdrop_path || '')}>
+        <Title>{Latestdata?.name}</Title>
+        <Overview>{Latestdata?.overview}</Overview>
         <BTN
-            onClick={() => onDetail(Popular?.results[0].id+'')}>자세히 보기</BTN>
+            onClick={() => onDetail(Latestdata?.id+'')}>자세히 보기</BTN>
         </Banner>
 
-        <PoSlider>
-            <SliderText>Popular Tv</SliderText>
+        <AiringSlider>
+            <SliderText>Airing Tv</SliderText>
             <AnimatePresence
             custom={back}
             initial={false}
@@ -355,7 +390,7 @@ function Tv(){
                 exit='exit'
                 transition={{type:'tween', duration:0.5}}
                 key={index}>
-                    {Popular?.results.slice(2).slice(offset*index, offset*index+offset)
+                    {Airingdata?.results.slice(2).slice(offset*index, offset*index+offset)
                     .map((tv) => (
                         <Box
                         layoutId={tv.id+''}
@@ -373,13 +408,13 @@ function Tv(){
                         </Box>
                     ))}    
                 </Row>
-                <Prev onClick={PoPrevBtn}><BsFillArrowLeftCircleFill/></Prev>
-                <Next onClick={PoNextBtn}><BsFillArrowRightCircleFill/></Next>
+                <Prev onClick={AiringPrevBtn}><BsFillArrowLeftCircleFill/></Prev>
+                <Next onClick={AiringNextBtn}><BsFillArrowRightCircleFill/></Next>
             </AnimatePresence>
-        </PoSlider>
+        </AiringSlider>
         
-        <AirSlider>
-            <SliderText>Airing Tv</SliderText>
+        <PopularSlider>
+            <SliderText>Popular Tv</SliderText>
             <AnimatePresence
             custom={back2}
             initial={false}
@@ -392,7 +427,7 @@ function Tv(){
                 exit='exit'
                 transition={{type:'tween', duration:0.5}}
                 key={index2}>
-                    {Airing?.results.slice(2).slice(offset*index2, offset*index2+offset)
+                    {Populardata?.results.slice(2).slice(offset*index2, offset*index2+offset)
                     .map((tv) => (
                         <Box
                         layoutId={tv.id+''}
@@ -410,10 +445,48 @@ function Tv(){
                         </Box>
                     ))}    
                 </Row>
-                <Prev onClick={AirPrevBtn}><BsFillArrowLeftCircleFill/></Prev>
-                <Next onClick={AirNextBtn}><BsFillArrowRightCircleFill/></Next>
+                <Prev onClick={PopularPrevBtn}><BsFillArrowLeftCircleFill/></Prev>
+                <Next onClick={PopularNextBtn}><BsFillArrowRightCircleFill/></Next>
             </AnimatePresence>
-        </AirSlider>
+        </PopularSlider>
+
+        <Top_ratedSlider>
+            <SliderText>Top_rated Tv</SliderText>
+            <AnimatePresence
+            custom={back3}
+            initial={false}
+            onExitComplete={toggleLeaving}>
+                <Row
+                custom={back3}
+                variants={rowVariants}
+                initial='hidden'
+                animate='visible'
+                exit='exit'
+                transition={{type:'tween', duration:0.5}}
+                key={index3}>
+                    {Top_ratedata?.results.slice(2).slice(offset*index3, offset*index3+offset)
+                    .map((tv) => (
+                        <Box
+                        layoutId={tv.id+''}
+                        variants={boxVariants}
+                        key={tv.id}
+                        whileHover='hover'
+                        initial='normal'
+                        onClick={()=> onBoxClicked(tv.id)}
+                        transition={{type:'tween'}}
+                        bgPhoto={makeImagePath(tv.backdrop_path, 'w400' || '')}>
+                            <Info
+                            variants={infoVariants}>
+                                <h4>{tv.name}</h4>
+                            </Info>
+                        </Box>
+                    ))}    
+                </Row>
+                <Prev onClick={Top_ratedPrevBtn}><BsFillArrowLeftCircleFill/></Prev>
+                <Next onClick={Top_ratedNextBtn}><BsFillArrowRightCircleFill/></Next>
+            </AnimatePresence>
+        </Top_ratedSlider>
+
 
         <AnimatePresence>
             {tvPathMatch ? 
@@ -468,6 +541,26 @@ function Tv(){
                 <BigPlay><BsFillPlayCircleFill/></BigPlay>
                 </>}
 
+                {clickTv3 && 
+                <>
+                <BigCover
+                style={{backgroundImage:`url(${makeImagePath(clickTv3.backdrop_path, 'w500')})`}}/>
+                <BigTitle>{clickTv3.name}</BigTitle>
+                <BigGen>
+              {clickTv3.genre_ids.map((g) => (
+                gen.map((v)=>(
+                  v.id === g ? (
+                    <div>{v.name}</div>
+                    
+                  ): null
+                )) 
+              ))}
+            </BigGen>
+                <BigOverView>{clickTv3.overview}</BigOverView>
+                <BigScore><AiFillStar/>{clickTv3.vote_average}</BigScore>
+                <BigReleaseDate>{clickTv3.first_air_date}</BigReleaseDate>
+                <BigPlay><BsFillPlayCircleFill/></BigPlay>
+                </>}
             </BigMovie>
             </>   : null
         }

@@ -6,17 +6,23 @@ import { makeImagePath } from "../utils";
 import { BsFillArrowRightCircleFill , BsFillArrowLeftCircleFill, BsFillPlayCircleFill} from "react-icons/bs";
 import { AiFillStar } from "react-icons/ai";
 import { useQuery } from "@tanstack/react-query";
-import { getMovieSearchTv, IGetSearch } from "../api";
+import { getMovieSearch, getTvSearch, IGetSearch } from "../api";
 
 const offset = 6;
 
 const Wrapper = styled.div`
 background:black;
 `
-const Slider = styled.div`
+const MovieSlider = styled.div`
 position:relative;
 top:300px;
 `
+
+const TvSlider = styled.div`
+position:relative;
+top:600px;
+`
+
 const SliderText = styled.div`
 left:30px;
 position:absolute;
@@ -191,17 +197,27 @@ const infoVariants = {
   `
 
 function Search(){
-   const location = useLocation();
-   const navigate = useNavigate();
-   const keyword = new URLSearchParams(location.search).get('query');
-   const [index, setIndex] = useState(0);
-   const [back, setback] = useState(false);
-   const toggleLeaving = () => setLeaving(prev => !prev);
-   const [leaving, setLeaving] = useState(false);
-   const {data:movie,isLoading} = useQuery<IGetSearch>(
+  const location = useLocation();
+  const navigate = useNavigate();
+  const keyword = new URLSearchParams(location.search).get('query');
+  const [index, setIndex] = useState(0);
+  const [back, setback] = useState(false);
+  const [index2, setIndex2] = useState(0)
+  const [back2,setback2] = useState(false)
+
+  const toggleLeaving = () => setLeaving(prev => !prev);
+  const [leaving, setLeaving] = useState(false);
+
+
+  const {data:movie,isLoading} = useQuery<IGetSearch>(
     ['movie',keyword], 
-     () =>getMovieSearchTv(keyword+''),
+     () =>getMovieSearch(keyword+''),
    )
+  
+  const {data:tv} = useQuery<IGetSearch>(
+    ['tv',keyword],
+    () => getTvSearch(keyword+''),
+  )
 
    const PrevBtn = () => {
     if(movie){
@@ -223,19 +239,44 @@ function Search(){
     setback(true);
 }
    };
+   const TVPrevBtn = () => {
+    if(tv){
+      if(leaving) return;
+    toggleLeaving();
+    const totalMovies = tv.results.length -1;
+    const maxIndex2 = Math.floor(totalMovies/offset) -1;
+    setIndex2((prev) => prev === 0 ? maxIndex2 : prev -1);
+    setback2(false);
+    }
+   }
+   const TVNextBtn = () => {
+    if(tv){
+      if(leaving) return;
+    toggleLeaving();
+    const totalMovies = tv.results.length -1; {/*영화 개수 알아내기 , -1을 해주는 이유는 이미 메인페이지에 영화 하나 쓰고있으니깐 */}
+    const maxIndex = Math.floor(totalMovies/ offset) -1 ; {/* 인덱스의 길이구하기 , Math.ceil은 올림, -1을 해주는 이유는 page가 0에서 시작하기 때문에 */}
+    setIndex2((prev) => prev === maxIndex ? 0 : prev + 1); 
+    setback2(true);
+}
+   };
+
+
+
     const {scrollY} = useScroll();
+    const onOverlayClick = () => navigate(`/search`);
     const onBoxClicked = (MovieId:number) => {
     navigate(`/search?query=${keyword+''}/${MovieId}`);
    }
    const moviePathMatch:PathMatch<string>|null = useMatch(`/search?query=${keyword+''}/:Id`);
-   console.log(moviePathMatch?.params.Id)
+   
    const clickedMovie = moviePathMatch?.params.MovieId && movie?.results.find(mov => mov.id+'' === moviePathMatch.params.MovieId);
-   const onOverlayClick = () => navigate(`/search`);
+   const clickedMovie2 = moviePathMatch?.params.MovieId && tv?.results.find(tv => tv.id+'' === moviePathMatch.params.MovieId);
+
      
     return (
       <Wrapper>
             <>
-          <Slider>
+          <MovieSlider>
             <SliderText>영화</SliderText>
             <AnimatePresence
             custom={back}
@@ -269,7 +310,43 @@ function Search(){
               <Prev onClick={PrevBtn}><BsFillArrowLeftCircleFill/></Prev>
               <Next onClick={NextBtn}><BsFillArrowRightCircleFill/></Next>
             </AnimatePresence>
-          </Slider>
+          </MovieSlider>
+
+          <TvSlider>
+            <SliderText>티비</SliderText>
+            <AnimatePresence
+            custom={back2}
+            initial={false}
+            onExitComplete={toggleLeaving}>
+              <Row
+              custom={back2}
+              variants={rowVariants}
+              initial='hidden'
+              animate='visible'
+              exit='exit'
+              transition={{type:'tween', duration:0.5}}
+              key ={index2}>
+                {tv?.results.slice(offset*index2, offset*index2+offset)
+                .map((movies) => (
+                  <Box
+                  layoutId={movies.backdrop_path}
+                  variants={boxVariants}
+                  key={movies.id}
+                  whileHover='hover'
+                  initial='normal'
+                  onClick={()=> onBoxClicked(movies.id)}
+                  transition={{type:'tween'}}
+                  bgPhoto={makeImagePath(movies.backdrop_path, 'w400' || "")}>
+                    <Info variants={infoVariants}>
+                      <h4>{movies.title}</h4>
+                    </Info>
+                  </Box>
+                ))}
+              </Row>
+              <Prev onClick={TVPrevBtn}><BsFillArrowLeftCircleFill/></Prev>
+              <Next onClick={TVNextBtn}><BsFillArrowRightCircleFill/></Next>
+            </AnimatePresence>
+          </TvSlider>
       
 
           <AnimatePresence>
