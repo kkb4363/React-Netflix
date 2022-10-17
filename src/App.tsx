@@ -1,11 +1,11 @@
-import {HashRouter as Router , Routes, Route} from 'react-router-dom';
+import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import Home from './Routes/Home';
 import Tv from './Routes/Tv';
 import Search from './Routes/Search';
 import Header from './Components/Header';
 function App(){
   return (
-    <Router>
+    <BrowserRouter basename={process.env.PUBLIC_URL}>
       <Header/>
       <Routes>
         <Route path="/tv" element={<Tv/>}/>
@@ -15,7 +15,7 @@ function App(){
         <Route path='/' element={<Home/>}/>
         <Route path="movies/:movieId" element={<Home/>}/>
       </Routes>
-    </Router>
+    </BrowserRouter>
   )
 }
 
